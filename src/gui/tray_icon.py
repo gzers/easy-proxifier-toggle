@@ -97,5 +97,6 @@ def setup_icon():
         pystray.MenuItem("退出", quit_app)
     )
 
-    icon = pystray.Icon("Proxifier_Toggler", image, "Proxifier 切换器", menu)
+    from .. import __version__
+    icon = pystray.Icon("Proxifier_Toggler", image, f"Proxifier 切换器 v{__version__}", menu)
     icon.run()

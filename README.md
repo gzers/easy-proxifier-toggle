@@ -1,5 +1,7 @@
 # Proxifier 切换器
 
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](docs/CHANGELOG.md)
+
 一个简单的系统托盘工具，用于快速切换 Proxifier 的开关状态。
 
 ## 功能特性

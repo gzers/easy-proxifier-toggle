@@ -28,7 +28,9 @@ class SettingsWindow:
         # 创建新窗口
         self.window = tk.Tk()
         self.window.title("Proxifier Toggler 设置")
-        self.window.geometry("600x350")
+        
+        # 设置窗口大小并居中
+        self._center_window(600, 380)
         self.window.resizable(False, False)
         
         # 设置窗口图标（可选）
@@ -49,6 +51,16 @@ class SettingsWindow:
         # 运行窗口
         self.window.mainloop()
     
+    def _center_window(self, width, height):
+        """将窗口居中显示"""
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+        
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+        
+        self.window.geometry(f"{width}x{height}+{x}+{y}")
+
     def _create_widgets(self, config):
         """创建界面元素"""
         # 标题
@@ -150,6 +162,16 @@ class SettingsWindow:
             cursor="hand2"
         )
         start_minimized_check.pack(anchor='w', pady=5)
+        
+        # 版本号显示
+        from .. import __version__
+        version_label = tk.Label(
+            self.window,
+            text=f"Version {__version__}",
+            font=("Consolas", 8),
+            fg="lightgray"
+        )
+        version_label.pack(side=tk.BOTTOM, pady=5)
         
         # 按钮区域
         button_frame = tk.Frame(self.window)
