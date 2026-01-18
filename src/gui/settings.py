@@ -1,22 +1,25 @@
-"""设置窗口 GUI"""
+"""主控面板 - 采用模块化组件设计"""
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import messagebox
 from ..config import manager as config_manager
+from ..utils import startup
+from .widgets.status_frame import StatusFrame
+from .widgets.config_frame import ConfigFrame
+from .widgets.startup_frame import StartupFrame
 
 
 class SettingsWindow:
-    """设置窗口类"""
+    """主控面板类 (聚合组件)"""
     
     def __init__(self):
         self.window = None
-        self.proxifier_path_var = None
-        self.service_name_var = None
-        self.auto_start_var = None
-        self.start_minimized_var = None
+        self.status_panel = None
+        self.config_panel = None
+        self.startup_panel = None
+        self.initial_config = None
     
     def show(self):
-        """显示设置窗口"""
-        # 如果窗口已经存在，则将其置于前台
+        """显示主控面板"""
         if self.window is not None:
             try:
                 self.window.lift()
@@ -25,249 +28,123 @@ class SettingsWindow:
             except:
                 pass
         
-        # 创建新窗口
         self.window = tk.Tk()
-        self.window.title("Proxifier Toggler 设置")
+        self.window.title("Easy-Proxifier-Toggler 主控面板")
         
-        # 设置窗口大小并居中
-        self._center_window(600, 380)
+        # 窗口布局与大小
+        self._center_window(650, 620)
         self.window.resizable(False, False)
         
-        # 设置窗口图标
+        # 设置图标
         try:
-            from ..config import manager as config_manager
             icon_path = config_manager.ASSETS_DIR / "icon.ico"
             if icon_path.exists():
                 self.window.iconbitmap(str(icon_path))
-        except Exception as e:
-            print(f"设置窗口图标失败: {e}")
+        except:
+            pass
             
-        # 加载当前配置
-        config = config_manager.load_config()
+        # 加载初始配置
+        self.initial_config = config_manager.load_config()
         
-        # 创建界面元素
-        self._create_widgets(config)
+        self._create_layout()
         
-        # 窗口关闭事件
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
-        
-        # 运行窗口
         self.window.mainloop()
-    
+
     def _center_window(self, width, height):
-        """将窗口居中显示"""
         screen_width = self.window.winfo_screenwidth()
         screen_height = self.window.winfo_screenheight()
-        
         x = (screen_width // 2) - (width // 2)
         y = (screen_height // 2) - (height // 2)
-        
         self.window.geometry(f"{width}x{height}+{x}+{y}")
 
-    def _create_widgets(self, config):
-        """创建界面元素"""
-        # 标题
-        title_label = tk.Label(
-            self.window,
-            text="Proxifier Toggler 配置",
-            font=("Microsoft YaHei UI", 14, "bold")
-        )
-        title_label.pack(pady=15)
+    def _create_layout(self):
+        """组装各个模块化组件"""
+        pad_x = 25
         
-        # Proxifier 可执行文件路径
-        path_frame = tk.Frame(self.window)
-        path_frame.pack(pady=10, padx=20, fill=tk.X)
+        # 1. 状态监控板块
+        self.status_panel = StatusFrame(self.window, self.initial_config)
+        self.status_panel.pack(fill="x", padx=pad_x, pady=(20, 10))
         
-        path_label = tk.Label(
-            path_frame,
-            text="Proxifier 可执行文件路径:",
-            font=("Microsoft YaHei UI", 10),
-            width=20,
-            anchor='w'
-        )
-        path_label.pack(side=tk.LEFT, padx=(0, 10))
+        # 2. 基本配置板块
+        self.config_panel = ConfigFrame(self.window, self.initial_config)
+        self.config_panel.pack(fill="x", padx=pad_x, pady=10)
         
-        self.proxifier_path_var = tk.StringVar(value=config["proxifier_exe_path"])
-        path_entry = tk.Entry(
-            path_frame,
-            textvariable=self.proxifier_path_var,
-            font=("Consolas", 9),
-            width=40
-        )
-        path_entry.pack(side=tk.LEFT, padx=(0, 10), fill=tk.X, expand=True)
+        # 3. 启动配置板块
+        self.startup_panel = StartupFrame(self.window, self.initial_config)
+        self.startup_panel.pack(fill="x", padx=pad_x, pady=10)
         
-        browse_button = tk.Button(
-            path_frame,
-            text="浏览...",
-            command=self._browse_file,
-            font=("Microsoft YaHei UI", 9),
-            width=8
-        )
-        browse_button.pack(side=tk.LEFT)
+        # 4. 底部操作按钮区域
+        btn_frame = tk.Frame(self.window)
+        btn_frame.pack(side=tk.BOTTOM, fill="x", pady=20)
         
-        # 服务名称
-        service_frame = tk.Frame(self.window)
-        service_frame.pack(pady=10, padx=20, fill=tk.X)
+        # 保存按钮
+        tk.Button(
+            btn_frame, text="保存所有修改", 
+            command=self._handle_save, 
+            bg="#28a745", fg="white", 
+            font=("Microsoft YaHei UI", 10, "bold"), 
+            width=15, relief=tk.FLAT, cursor="hand2"
+        ).pack(side=tk.RIGHT, padx=(10, pad_x))
         
-        service_label = tk.Label(
-            service_frame,
-            text="服务名称:",
-            font=("Microsoft YaHei UI", 10),
-            width=20,
-            anchor='w'
-        )
-        service_label.pack(side=tk.LEFT, padx=(0, 10))
+        # 重置按钮
+        tk.Button(
+            btn_frame, text="恢复初始配置", 
+            command=self._handle_reset, 
+            font=("Microsoft YaHei UI", 10), 
+            width=12, relief=tk.FLAT, cursor="hand2"
+        ).pack(side=tk.RIGHT, padx=10)
         
-        self.service_name_var = tk.StringVar(value=config["service_name"])
-        service_entry = tk.Entry(
-            service_frame,
-            textvariable=self.service_name_var,
-            font=("Consolas", 9),
-            width=40
-        )
-        service_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        
-        # 提示信息
-        hint_label = tk.Label(
-            self.window,
-            text="提示: 服务名称默认为 'proxifierdrv'，一般无需修改",
-            font=("Microsoft YaHei UI", 8),
-            fg="gray"
-        )
-        hint_label.pack(pady=5)
-        
-        # 分隔线
-        separator = tk.Frame(self.window, height=1, bg="lightgray")
-        separator.pack(fill=tk.X, padx=20, pady=10)
-        
-        # 选项区域
-        options_frame = tk.Frame(self.window)
-        options_frame.pack(pady=10, padx=20, fill=tk.X)
-        
-        # 开机启动复选框
-        self.auto_start_var = tk.BooleanVar(value=config.get("auto_start", False))
-        auto_start_check = tk.Checkbutton(
-            options_frame,
-            text="开机自动启动",
-            variable=self.auto_start_var,
-            font=("Microsoft YaHei UI", 10),
-            cursor="hand2"
-        )
-        auto_start_check.pack(anchor='w', pady=5)
-        
-        # 启动时最小化复选框
-        self.start_minimized_var = tk.BooleanVar(value=config.get("start_minimized", True))
-        start_minimized_check = tk.Checkbutton(
-            options_frame,
-            text="启动时最小化到托盘（不勾选则打开设置界面）",
-            variable=self.start_minimized_var,
-            font=("Microsoft YaHei UI", 10),
-            cursor="hand2"
-        )
-        start_minimized_check.pack(anchor='w', pady=5)
-        
-        # 版本号显示
+        # 版本标识
         from .. import __version__
-        version_label = tk.Label(
-            self.window,
-            text=f"Version {__version__}",
-            font=("Consolas", 8),
-            fg="lightgray"
-        )
-        version_label.pack(side=tk.BOTTOM, pady=5)
+        tk.Label(
+            self.window, 
+            text=f"Easy-Proxifier-Toggler v{__version__} | By EZIO T", 
+            font=("Consolas", 8), fg="#aaa"
+        ).place(x=pad_x, y=585)
+
+    def _handle_save(self):
+        """收集各组件数据并保存"""
+        # 合并数据
+        new_data = {**self.config_panel.get_data(), **self.startup_panel.get_data()}
         
-        # 按钮区域
-        button_frame = tk.Frame(self.window)
-        button_frame.pack(pady=20)
-        
-        save_button = tk.Button(
-            button_frame,
-            text="保存",
-            command=self._save_config,
-            font=("Microsoft YaHei UI", 10),
-            width=10,
-            bg="#0078D4",
-            fg="white",
-            relief=tk.FLAT,
-            cursor="hand2"
-        )
-        save_button.pack(side=tk.LEFT, padx=10)
-        
-        cancel_button = tk.Button(
-            button_frame,
-            text="取消",
-            command=self._on_close,
-            font=("Microsoft YaHei UI", 10),
-            width=10,
-            relief=tk.FLAT,
-            cursor="hand2"
-        )
-        cancel_button.pack(side=tk.LEFT, padx=10)
-    
-    def _browse_file(self):
-        """浏览文件对话框"""
-        filename = filedialog.askopenfilename(
-            title="选择 Proxifier 可执行文件",
-            filetypes=[("可执行文件", "*.exe"), ("所有文件", "*.*")],
-            initialdir="C:\\Program Files"
-        )
-        
-        if filename:
-            self.proxifier_path_var.set(filename)
-    
-    def _save_config(self):
-        """保存配置"""
-        proxifier_path = self.proxifier_path_var.get().strip()
-        service_name = self.service_name_var.get().strip()
-        auto_start = self.auto_start_var.get()
-        start_minimized = self.start_minimized_var.get()
-        
-        # 验证输入
-        if not proxifier_path:
-            messagebox.showerror("错误", "Proxifier 可执行文件路径不能为空！")
-            return
-        
-        if not service_name:
-            messagebox.showerror("错误", "服务名称不能为空！")
-            return
-        
-        # 保存配置
-        success = config_manager.update_config(
-            proxifier_exe_path=proxifier_path,
-            service_name=service_name,
-            auto_start=auto_start,
-            start_minimized=start_minimized
-        )
+        # 执行保存
+        success = config_manager.update_config(**new_data)
         
         if success:
-            # 同步开机启动设置到注册表
-            from ..utils import startup
-            if auto_start:
-                startup_success = startup.enable_auto_start()
-                if not startup_success:
-                    messagebox.showwarning("警告", "配置已保存，但设置开机启动失败！\n请检查是否有足够的权限。")
-                    return
+            # 同步自启动状态
+            if new_data["auto_start"]:
+                startup.enable_auto_start()
             else:
                 startup.disable_auto_start()
             
-            messagebox.showinfo("成功", "配置已保存！\n\n注意: 配置将在下次操作时生效。")
-            self._on_close()
+            # 通知状态面板配置已变（防止路径失效）
+            self.status_panel.update_config(new_data)
+            
+            messagebox.showinfo("成功", "配置已保存到本地！\n\n部分设置（如最小化启动）将在下次运行程序时生效。")
         else:
-            messagebox.showerror("错误", "保存配置失败！")
-    
+            messagebox.showerror("错误", "保存失败，请检查文件访问权限。")
+
+    def _handle_reset(self):
+        """重置各组件的数据"""
+        if messagebox.askyesno("确认", "确定要放弃当前所有修改并恢复到软件启动时的状态吗？"):
+            self.config_panel.set_data(self.initial_config)
+            self.startup_panel.set_data(self.initial_config)
+            self.status_panel.update_config(self.initial_config)
+
     def _on_close(self):
-        """关闭窗口"""
+        """关闭逻辑：停止所有异步任务"""
+        if self.status_panel:
+            self.status_panel.stop_monitoring()
         if self.window:
             self.window.destroy()
             self.window = None
 
 
 def open_settings():
-    """打开设置窗口（供外部调用）"""
-    settings = SettingsWindow()
-    settings.show()
+    """外部调用接口"""
+    SettingsWindow().show()
 
 
 if __name__ == "__main__":
-    # 测试设置窗口
     open_settings()
