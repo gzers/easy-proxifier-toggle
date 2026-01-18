@@ -102,7 +102,7 @@ def setup_icon():
         pystray.MenuItem("切换 Proxifier", toggle_proxifier_state, default=True),
         pystray.MenuItem("查看状态", show_status),
         pystray.Menu.SEPARATOR,
-        pystray.MenuItem("设置", open_settings_window),
+        pystray.MenuItem("主界面", open_settings_window),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("退出", quit_app)
     )

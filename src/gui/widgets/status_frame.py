@@ -2,11 +2,12 @@ import tkinter as tk
 import threading
 import time
 from ...core import service, process
+from ..styles import create_styled_button, COLORS, FONTS
 
 class StatusFrame(tk.LabelFrame):
     """状态监控与切换控制板块"""
-    def __init__(self, master, config):
-        super().__init__(master, text=" 当前状态 ", font=("Microsoft YaHei UI", 10, "bold"), padx=15, pady=10)
+    def __init__(self, master, config, **kwargs):
+        super().__init__(master, text=" 当前状态 ", font=FONTS["title"], padx=15, pady=10, **kwargs)
         self.config = config
         self.is_monitoring = True
         
@@ -17,27 +18,26 @@ class StatusFrame(tk.LabelFrame):
         self._start_monitor()
 
     def _setup_ui(self):
-        info_frame = tk.Frame(self)
+        info_frame = tk.Frame(self, bg=self["bg"])
         info_frame.pack(side=tk.LEFT, fill="both", expand=True)
         
         # 驱动服务状态
-        tk.Label(info_frame, text="驱动服务:", font=("Microsoft YaHei UI", 10)).grid(row=0, column=0, sticky="w")
-        self.service_label = tk.Label(info_frame, textvariable=self.service_status_var, font=("Consolas", 10, "bold"))
+        tk.Label(info_frame, text="驱动服务:", font=("Microsoft YaHei UI", 10), bg=self["bg"]).grid(row=0, column=0, sticky="w")
+        self.service_label = tk.Label(info_frame, textvariable=self.service_status_var, font=("Consolas", 10, "bold"), bg=self["bg"])
         self.service_label.grid(row=0, column=1, sticky="w", padx=10)
         
         # 进程状态
-        tk.Label(info_frame, text="进程状态:", font=("Microsoft YaHei UI", 10)).grid(row=1, column=0, sticky="w")
-        self.process_label = tk.Label(info_frame, textvariable=self.process_status_var, font=("Consolas", 10, "bold"))
+        tk.Label(info_frame, text="进程状态:", font=("Microsoft YaHei UI", 10), bg=self["bg"]).grid(row=1, column=0, sticky="w")
+        self.process_label = tk.Label(info_frame, textvariable=self.process_status_var, font=("Consolas", 10, "bold"), bg=self["bg"])
         self.process_label.grid(row=1, column=1, sticky="w", padx=10)
         
         # 切换按钮
-        self.toggle_btn = tk.Button(
+        self.toggle_btn = create_styled_button(
             self, 
             text="切换状态", 
             command=self._handle_toggle,
-            font=("Microsoft YaHei UI", 10, "bold"),
-            width=12, height=2,
-            bg="#0078D4", fg="white", relief=tk.FLAT, cursor="hand2"
+            width=12, height=1, # height in text units, styled button has padding
+            style="primary"
         )
         self.toggle_btn.pack(side=tk.RIGHT, padx=10)
 
@@ -78,8 +78,8 @@ class StatusFrame(tk.LabelFrame):
                     self.process_status_var.set("运行中" if p_running else "已停止")
                     
                     # 动态颜色
-                    self.service_label.config(fg="#28a745" if s_status == "RUNNING" else "#dc3545")
-                    self.process_label.config(fg="#28a745" if p_running else "#dc3545")
+                    self.service_label.config(fg=COLORS["success"] if s_status == "RUNNING" else COLORS["danger"])
+                    self.process_label.config(fg=COLORS["success"] if p_running else COLORS["danger"])
                 except:
                     pass
                 time.sleep(2)

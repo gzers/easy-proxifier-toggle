@@ -6,6 +6,7 @@ from ..utils import startup
 from .widgets.status_frame import StatusFrame
 from .widgets.config_frame import ConfigFrame
 from .widgets.startup_frame import StartupFrame
+from .styles import create_styled_button, COLORS
 
 
 class SettingsWindow:
@@ -33,6 +34,7 @@ class SettingsWindow:
         
         # 窗口布局与大小
         self._center_window(650, 620)
+        self.window.configure(bg=COLORS["background"])
         self.window.resizable(False, False)
         
         # 设置图标
@@ -63,36 +65,35 @@ class SettingsWindow:
         pad_x = 25
         
         # 1. 状态监控板块
-        self.status_panel = StatusFrame(self.window, self.initial_config)
+        self.status_panel = StatusFrame(self.window, self.initial_config, bg=COLORS["background"])
         self.status_panel.pack(fill="x", padx=pad_x, pady=(20, 10))
         
         # 2. 基本配置板块
-        self.config_panel = ConfigFrame(self.window, self.initial_config)
+        self.config_panel = ConfigFrame(self.window, self.initial_config, bg=COLORS["background"])
         self.config_panel.pack(fill="x", padx=pad_x, pady=10)
         
         # 3. 启动配置板块
-        self.startup_panel = StartupFrame(self.window, self.initial_config)
+        self.startup_panel = StartupFrame(self.window, self.initial_config, bg=COLORS["background"])
         self.startup_panel.pack(fill="x", padx=pad_x, pady=10)
         
         # 4. 底部操作按钮区域
-        btn_frame = tk.Frame(self.window)
+        btn_frame = tk.Frame(self.window, bg=COLORS["background"])
         btn_frame.pack(side=tk.BOTTOM, fill="x", pady=20)
         
         # 保存按钮
-        tk.Button(
+        create_styled_button(
             btn_frame, text="保存所有修改", 
             command=self._handle_save, 
-            bg="#28a745", fg="white", 
-            font=("Microsoft YaHei UI", 10, "bold"), 
-            width=15, relief=tk.FLAT, cursor="hand2"
+            style="success",
+            width=15
         ).pack(side=tk.RIGHT, padx=(10, pad_x))
         
         # 重置按钮
-        tk.Button(
+        create_styled_button(
             btn_frame, text="恢复初始配置", 
             command=self._handle_reset, 
-            font=("Microsoft YaHei UI", 10), 
-            width=12, relief=tk.FLAT, cursor="hand2"
+            style="secondary",
+            width=12
         ).pack(side=tk.RIGHT, padx=10)
         
         # 版本标识
@@ -100,7 +101,7 @@ class SettingsWindow:
         tk.Label(
             self.window, 
             text=f"Easy-Proxifier-Toggler v{__version__} | By EZIO T", 
-            font=("Consolas", 8), fg="#aaa"
+            font=("Consolas", 8), fg="#aaa", bg=COLORS["background"]
         ).place(x=pad_x, y=585)
 
     def _handle_save(self):
