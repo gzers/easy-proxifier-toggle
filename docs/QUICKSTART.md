@@ -2,152 +2,80 @@
 
 ## 第一次使用（必读）
 
-### 步骤 1：修改配置 ⚙️
+### 步骤 1：安装依赖 📦
 
-1. 打开 `proxifier_toggler.py` 文件
-2. 找到文件开头的配置区：
-   ```python
-   # --- 配置区 ---
-   PROXIFIER_EXE_PATH = r"D:\Software\Common\Proxifier\Proxifier.exe"
-   SERVICE_NAME = "proxifierdrv"
-   # --- 配置区结束 ---
-   ```
-3. 修改 `PROXIFIER_EXE_PATH` 为你的 Proxifier 实际安装路径
-   - 右键点击 Proxifier 快捷方式 → 属性 → 复制"目标"路径
-   - 记得在路径前加 `r`，例如：`r"C:\Program Files\Proxifier\Proxifier.exe"`
-
-### 步骤 2：检查配置 ✅
-
-运行配置检查工具：
-```bash
-python check_config.py
-```
-
-这会检查：
-- ✓ Proxifier 文件是否存在
-- ✓ 服务是否已安装
-- ✓ Python 依赖是否完整
-
-### 步骤 3：运行程序 🎯
+在项目根目录下打开命令提示符或 PowerShell，运行：
 
 ```bash
-python proxifier_toggler.py
+pip install -r requirements.txt
 ```
 
-- 程序会请求管理员权限（点击"是"）
-- 系统托盘会出现蓝色圆形图标
-- 右键点击图标即可使用
+### 步骤 2：启动程序 🎯
 
----
-
-## 日常使用
-
-### 方式 1：Python 脚本（推荐用于开发）
+**推荐方式：直接运行启动脚本**
 
 ```bash
-python proxifier_toggler.py
+python run.py
 ```
 
-### 方式 2：打包成 EXE（推荐用于日常使用）
+- **管理员权限**：程序会自动弹出 UAC 对话框请求管理员权限，请点击"是"。
+- **后台运行**：程序启动后会直接进入系统托盘（任务栏右下角），不会显示主窗口。
 
-1. 运行打包脚本：
-   ```bash
-   build.bat
-   ```
+### 步骤 3：配置路径 ⚙️
 
-2. 在 `dist` 文件夹找到 `ProxifierToggler.exe`
-
-3. 双击运行即可（无需 Python 环境）
-
----
-
-## 功能说明
-
-### 托盘菜单
-
-右键点击托盘图标，会显示以下菜单：
-
-- **切换 Proxifier**（默认操作）
-  - 如果 Proxifier 正在运行 → 关闭它
-  - 如果 Proxifier 已关闭 → 启动它
-  
-- **查看状态**
-  - 显示服务状态（RUNNING/STOPPED）
-  - 显示进程是否在运行
-
-- **退出**
-  - 关闭托盘程序（不影响 Proxifier）
-
-### 切换逻辑
-
-**开启 Proxifier：**
-1. 启动 Proxifier 驱动服务
-2. 启动 Proxifier 主程序
-3. 显示通知："Proxifier 已开启"
-
-**关闭 Proxifier：**
-1. 终止 Proxifier 进程
-2. 停止 Proxifier 驱动服务
-3. 显示通知："Proxifier 已关闭"
+1. 在系统托盘找到蓝色 "P" 图标，右键点击选择 **"设置"**。
+2. 在弹出的 **"设置"** 窗口中：
+   - **Proxifier 路径**：点击 "浏览" 按钮选择你的 `Proxifier.exe` 位置。
+   - **服务名称**：通常保持默认的 `proxifierdrv` 即可。
+3. 点击 **"保存配置"**。
 
 ---
 
-## 常见问题
+## 运行模式
 
-### ❓ 程序没有反应
+### 正常模式（推荐）
+```bash
+python run.py
+```
+自动处理权限，完整功能，适合日常使用。
 
-**检查：**
-- 是否点击了 UAC 提示中的"是"
-- 查看任务管理器中是否有 `python.exe` 或 `ProxifierToggler.exe` 进程
-
-### ❓ 提示"文件不存在"
-
-**解决：**
-- 运行 `python check_config.py` 检查配置
-- 确认 Proxifier 路径是否正确
-
-### ❓ 提示"服务未安装"
-
-**解决：**
-1. 以管理员身份运行一次 Proxifier
-2. 让它安装驱动服务
-3. 重启计算机
-
-### ❓ 切换后状态没变化
-
-**解决：**
-- 使用"查看状态"菜单检查当前状态
-- 等待几秒后再次尝试
-- 检查是否有其他程序占用了服务
+### 开发模式
+```bash
+python run.py --dev
+```
+跳过权限检查，控制台实时输出日志，适合调试和界面预览。
 
 ---
 
-## 开机自启动（可选）
+## 托盘功能说明
 
-如果你想让程序开机自动运行：
-
-### 方法 1：使用任务计划程序（推荐）
-
-1. 按 `Win + R`，输入 `taskschd.msc`
-2. 创建基本任务
-3. 触发器：登录时
-4. 操作：启动程序
-5. 程序路径：选择 `ProxifierToggler.exe`
-6. 勾选"使用最高权限运行"
-
-### 方法 2：启动文件夹
-
-1. 按 `Win + R`，输入 `shell:startup`
-2. 创建快捷方式指向 `ProxifierToggler.exe`
-3. 右键快捷方式 → 属性 → 高级 → 勾选"用管理员身份运行"
+- **点击/切换 Proxifier**：一键切换 Proxifier 及其服务的运行状态。
+- **查看状态**：快速检查驱动服务和进程是否正在运行。
+- **设置**：进入 Win11 Fluent UI 风格的配置中心。
+- **版本信息**：在托盘悬停或设置窗口底部查看当前版本。
 
 ---
 
-## 更多帮助
+## 常见问题解决
 
-- 📖 详细说明：查看 `README.md`
-- ⚙️ 配置帮助：查看 `CONFIG.md`
-- 🐛 问题反馈：提交 Issue
+### ❓ 托盘找不到图标
+- 点击任务栏右下角的小箭头（隐藏图标区域）。
+- 确保没有杀毒软件拦截 `python.exe`。
+
+### ❓ 切换无效
+- 请确认 Proxifier 路径是否正确。
+- 确认是否已通过 GUI 的设置页面保存了配置。
+- 尝试以管理员身份运行一次 Proxifier 本身以确保服务已安装。
+
+---
+
+## 进阶：打包为 EXE
+
+如果你希望脱离 Python 环境运行：
+
+1. 确保安装了 PyInstaller: `pip install pyinstaller`
+2. 运行打包脚本: `scripts/build.bat`
+3. 在 `dist/` 目录下找到生成的 `Easy-Proxifier-Toggler.exe`
 
 ---
 
