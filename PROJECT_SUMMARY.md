@@ -48,7 +48,6 @@ easy-proxifier-toggle/
 | **GUI** | `src/gui/tray_icon.py` | 系统托盘图标 |
 | | `src/gui/settings.py` | 设置窗口 |
 | **配置** | `src/config/manager.py` | 配置文件管理 |
-| **工具** | `src/utils/admin.py` | 管理员权限 |
 | **入口** | `src/main.py` | 主程序入口 |
 
 ### 3. 文件组织
@@ -171,10 +170,8 @@ src/
 ├── gui/            # GUI 模块
 │   ├── tray_icon.py    # 托盘图标
 │   └── settings.py     # 设置窗口
-├── config/         # 配置模块
-│   └── manager.py  # 配置管理器
-└── utils/          # 工具模块
-    └── admin.py    # 管理员权限
+└── config/         # 配置模块
+    └── manager.py  # 配置管理器
 ```
 
 ### 添加新功能

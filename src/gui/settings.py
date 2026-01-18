@@ -11,6 +11,8 @@ class SettingsWindow:
         self.window = None
         self.proxifier_path_var = None
         self.service_name_var = None
+        self.auto_start_var = None
+        self.start_minimized_var = None
     
     def show(self):
         """显示设置窗口"""
@@ -26,7 +28,7 @@ class SettingsWindow:
         # 创建新窗口
         self.window = tk.Tk()
         self.window.title("Proxifier Toggler 设置")
-        self.window.geometry("600x250")
+        self.window.geometry("600x350")
         self.window.resizable(False, False)
         
         # 设置窗口图标（可选）
@@ -119,6 +121,36 @@ class SettingsWindow:
         )
         hint_label.pack(pady=5)
         
+        # 分隔线
+        separator = tk.Frame(self.window, height=1, bg="lightgray")
+        separator.pack(fill=tk.X, padx=20, pady=10)
+        
+        # 选项区域
+        options_frame = tk.Frame(self.window)
+        options_frame.pack(pady=10, padx=20, fill=tk.X)
+        
+        # 开机启动复选框
+        self.auto_start_var = tk.BooleanVar(value=config.get("auto_start", False))
+        auto_start_check = tk.Checkbutton(
+            options_frame,
+            text="开机自动启动",
+            variable=self.auto_start_var,
+            font=("Microsoft YaHei UI", 10),
+            cursor="hand2"
+        )
+        auto_start_check.pack(anchor='w', pady=5)
+        
+        # 启动时最小化复选框
+        self.start_minimized_var = tk.BooleanVar(value=config.get("start_minimized", True))
+        start_minimized_check = tk.Checkbutton(
+            options_frame,
+            text="启动时最小化到托盘（不勾选则打开设置界面）",
+            variable=self.start_minimized_var,
+            font=("Microsoft YaHei UI", 10),
+            cursor="hand2"
+        )
+        start_minimized_check.pack(anchor='w', pady=5)
+        
         # 按钮区域
         button_frame = tk.Frame(self.window)
         button_frame.pack(pady=20)
@@ -162,6 +194,8 @@ class SettingsWindow:
         """保存配置"""
         proxifier_path = self.proxifier_path_var.get().strip()
         service_name = self.service_name_var.get().strip()
+        auto_start = self.auto_start_var.get()
+        start_minimized = self.start_minimized_var.get()
         
         # 验证输入
         if not proxifier_path:
@@ -175,10 +209,22 @@ class SettingsWindow:
         # 保存配置
         success = config_manager.update_config(
             proxifier_exe_path=proxifier_path,
-            service_name=service_name
+            service_name=service_name,
+            auto_start=auto_start,
+            start_minimized=start_minimized
         )
         
         if success:
+            # 同步开机启动设置到注册表
+            from ..utils import startup
+            if auto_start:
+                startup_success = startup.enable_auto_start()
+                if not startup_success:
+                    messagebox.showwarning("警告", "配置已保存，但设置开机启动失败！\n请检查是否有足够的权限。")
+                    return
+            else:
+                startup.disable_auto_start()
+            
             messagebox.showinfo("成功", "配置已保存！\n\n注意: 配置将在下次操作时生效。")
             self._on_close()
         else:

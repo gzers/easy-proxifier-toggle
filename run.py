@@ -1,34 +1,13 @@
 """
 Proxifier Toggler 启动脚本
+程序启动时会自动弹出 UAC 对话框请求管理员权限
 支持以下运行模式：
-1. 交互模式（默认）：启动时询问是否需要管理员权限
-2. 开发模式：python run.py --dev 或 python run.py -d（跳过管理员权限）
-3. 管理员模式：python run.py --admin 或 python run.py -a（直接请求管理员权限）
+1. 正常模式（默认）：python run.py - 自动请求管理员权限
+2. 开发模式：python run.py --dev 或 python run.py -d（跳过权限检查，用于开发调试）
 """
 import sys
+import os
 import argparse
-
-
-def ask_for_admin():
-    """询问用户是否需要管理员权限"""
-    print("=" * 60)
-    print("Proxifier Toggler - 启动选项")
-    print("=" * 60)
-    print()
-    print("请选择运行模式：")
-    print("  [1] 管理员模式（推荐）- 完整功能，可控制 Proxifier 服务")
-    print("  [2] 开发模式 - 无需管理员权限，但服务控制功能不可用")
-    print()
-    
-    while True:
-        choice = input("请输入选择 [1/2] (默认: 1): ").strip()
-        
-        if choice == "" or choice == "1":
-            return True
-        elif choice == "2":
-            return False
-        else:
-            print("❌ 无效选择，请输入 1 或 2")
 
 
 def main():
@@ -40,22 +19,13 @@ def main():
     parser.add_argument(
         "-d", "--dev",
         action="store_true",
-        help="开发模式：跳过管理员权限检查"
-    )
-    parser.add_argument(
-        "-a", "--admin",
-        action="store_true",
-        help="管理员模式：直接请求管理员权限"
+        help="开发模式：跳过管理员权限检查（用于开发调试）"
     )
     
     args = parser.parse_args()
     
-    # 决定是否需要管理员权限
-    need_admin = True  # 默认需要管理员权限
-    
+    # 开发模式：跳过权限检查
     if args.dev:
-        # 开发模式：不需要管理员权限
-        need_admin = False
         print("=" * 60)
         print("Proxifier Toggler - 开发模式")
         print("=" * 60)
@@ -63,16 +33,13 @@ def main():
         print("⚠️  某些功能（如服务控制）可能无法正常工作")
         print("=" * 60)
         print()
-    elif args.admin:
-        # 管理员模式：需要管理员权限
-        need_admin = True
-    else:
-        # 交互模式：询问用户
-        need_admin = ask_for_admin()
+        
+        # 设置环境变量，告诉主程序跳过权限检查
+        os.environ['SKIP_ADMIN_CHECK'] = '1'
     
     # 导入并运行主程序
     from src.main import main as app_main
-    app_main(need_admin=need_admin)
+    app_main()
 
 
 if __name__ == "__main__":

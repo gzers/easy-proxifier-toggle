@@ -13,15 +13,27 @@ def is_admin():
 
 
 def run_as_admin():
-    """请求管理员权限并重新启动脚本"""
+    """请求管理员权限并重新启动脚本
+    
+    如果当前没有管理员权限，会弹出 UAC 对话框请求权限，
+    然后重新启动程序并退出当前进程。
+    """
     if not is_admin():
         try:
+            # 获取当前脚本的绝对路径
             script = os.path.abspath(sys.argv[0])
+            # 获取命令行参数
             params = ' '.join([f'"{arg}"' for arg in sys.argv[1:]])
+            
+            # 使用 ShellExecuteW 以管理员身份重新启动
+            # "runas" 会触发 UAC 对话框
             ctypes.windll.shell32.ShellExecuteW(
                 None, "runas", sys.executable, f'"{script}" {params}', None, 1
             )
+            
+            # 退出当前进程（新进程会以管理员权限启动）
             sys.exit(0)
         except Exception as e:
             print(f"请求管理员权限失败: {e}")
+            print("请手动以管理员身份运行此程序")
             sys.exit(1)

@@ -20,6 +20,7 @@ try:
     print("[2/7] 测试导入 utils.admin...")
     from src.utils import admin
     print(f"    ✓ is_admin 函数: {hasattr(admin, 'is_admin')}")
+    print(f"    ✓ run_as_admin 函数: {hasattr(admin, 'run_as_admin')}")
     
     print("[3/7] 测试导入 core.service...")
     from src.core import service

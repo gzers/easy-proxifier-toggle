@@ -21,12 +21,9 @@ easy-proxifier-toggle/
 │   │   ├── __init__.py
 │   │   ├── tray_icon.py     # 系统托盘图标
 │   │   └── settings.py      # 设置窗口
-│   ├── config/              # 配置管理模块
-│   │   ├── __init__.py
-│   │   └── manager.py       # 配置文件管理器
-│   └── utils/               # 工具函数模块
+│   └── config/              # 配置管理模块
 │       ├── __init__.py
-│       └── admin.py         # 管理员权限工具
+│       └── manager.py       # 配置文件管理器
 ├── config/                  # 配置文件目录
 │   ├── config.json          # 用户配置（自动生成，不提交）
 │   └── config.example.json  # 配置文件示例
@@ -78,12 +75,7 @@ easy-proxifier-toggle/
   - `get_service_name()`: 获取服务名称
   - `update_config()`: 更新配置
 
-### 4. `src/utils/` - 工具模块
-- **admin.py**: 管理员权限工具
-  - `is_admin()`: 检查是否为管理员
-  - `run_as_admin()`: 请求管理员权限
-
-### 5. `src/main.py` - 主程序
+### 4. `src/main.py` - 主程序
 - 程序入口点
 - 协调各模块工作
 
@@ -153,7 +145,6 @@ easy-proxifier-toggle/
    - 核心功能 → `src/core/`
    - GUI 相关 → `src/gui/`
    - 配置相关 → `src/config/`
-   - 工具函数 → `src/utils/`
 
 2. **创建新文件**
    ```python

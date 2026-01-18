@@ -9,7 +9,9 @@
 - 📊 查看当前 Proxifier 运行状态
 - ⚙️ GUI 配置窗口，可视化设置
 - 💾 配置持久化存储（config.json）
-- 🔐 自动请求管理员权限
+- 🔐 自动请求管理员权限（弹出 UAC 对话框）
+- 🚀 支持开机自动启动
+- 🪟 可选启动时打开设置界面或最小化到托盘
 - 💡 Windows 通知提示
 
 ## 使用前准备
@@ -42,7 +44,9 @@ pip install -r requirements.txt
 ```json
 {
     "proxifier_exe_path": "D:\\Software\\Common\\Proxifier\\Proxifier.exe",
-    "service_name": "proxifierdrv"
+    "service_name": "proxifierdrv",
+    "auto_start": false,
+    "start_minimized": true
 }
 ```
 
@@ -52,23 +56,27 @@ pip install -r requirements.txt
 
 ### 启动程序
 
-项目提供了统一的启动脚本 `run.py`，支持三种运行模式：
+**程序会自动弹出 UAC 对话框请求管理员权限，无需手动操作**
 
-#### 1️⃣ **交互模式（推荐）**
+#### 正常模式（推荐）
 
-直接运行，程序会询问你是否需要管理员权限：
+直接运行程序，会自动弹出 UAC 对话框：
 
 ```bash
 python run.py
 ```
 
-程序会显示选项让你选择：
-- **[1] 管理员模式** - 完整功能，可控制 Proxifier 服务
-- **[2] 开发模式** - 无需管理员权限，但服务控制功能不可用
+或者双击 `start_admin.bat` 批处理文件。
 
-#### 2️⃣ **开发模式（快速调试）**
+**首次运行时**：
+1. 运行 `python run.py`
+2. 系统会弹出 UAC 对话框
+3. 点击"是"授予管理员权限
+4. 程序会以管理员权限重新启动
 
-跳过询问，直接以开发模式运行（不需要管理员权限）：
+#### 开发模式
+
+如果你在开发调试，想跳过权限检查：
 
 ```bash
 python run.py --dev
@@ -76,30 +84,12 @@ python run.py --dev
 python run.py -d
 ```
 
-**特点**：
-- ✅ 不需要管理员权限
+**开发模式特点**：
+- ✅ 跳过管理员权限检查
 - ✅ 不会弹出 UAC 对话框
-- ✅ 命令行窗口保持打开，可以看到输出
-- ✅ 显示详细的错误信息
-- ⚠️ 服务控制功能不可用（需要管理员权限）
-
-#### 3️⃣ **管理员模式（完整功能）**
-
-跳过询问，直接请求管理员权限：
-
-```bash
-python run.py --admin
-# 或简写
-python run.py -a
-```
-
-**特点**：
-- ✅ 自动请求管理员权限
-- ✅ 所有功能完整可用
-- ⚠️ 会弹出 UAC 对话框
-- ⚠️ 程序会重启，命令行窗口会关闭
-
-程序会自动请求管理员权限，然后在系统托盘显示图标。
+- ✅ 显示详细的调试信息
+- ✅ 命令行窗口保持打开
+- ⚠️ 服务控制功能可能无法正常工作（需要管理员权限）
 
 **注意**：程序启动后会在系统托盘运行，不会显示主窗口。请在任务栏右下角查找托盘图标。
 
@@ -150,7 +140,7 @@ pyinstaller --noconfirm --onefile --windowed --icon=icon.ico --name="ProxifierTo
 ## 注意事项
 
 - ⚠️ 本程序需要管理员权限才能控制系统服务
-- ⚠️ 首次运行会弹出 UAC 提示，请点击"是"
+- ⚠️ 首次运行会弹出 UAC 对话框，请点击"是"授予权限
 - ⚠️ 请确保 Proxifier 已正确安装在系统中
 - ⚠️ 修改配置文件中的路径时，请使用原始字符串（`r"路径"`）或双反斜杠（`\\`）
 
@@ -195,8 +185,7 @@ easy-proxifier-toggle/
 │   │   ├── __init__.py
 │   │   └── manager.py       # 配置管理器
 │   └── utils/               # 工具函数
-│       ├── __init__.py
-│       └── admin.py         # 管理员权限相关
+│       └── __init__.py
 ├── config/                  # 配置文件目录
 │   ├── config.json          # 用户配置（自动生成）
 │   └── config.example.json  # 配置示例

@@ -6,7 +6,9 @@ from pathlib import Path
 # 默认配置
 DEFAULT_CONFIG = {
     "proxifier_exe_path": r"D:\Software\Common\Proxifier\Proxifier.exe",
-    "service_name": "proxifierdrv"
+    "service_name": "proxifierdrv",
+    "auto_start": False,  # 是否开机启动
+    "start_minimized": True  # 启动时是否最小化（不最小化则打开设置界面）
 }
 
 # 配置文件路径（存放在项目根目录的 config 文件夹）
@@ -69,7 +71,7 @@ def get_service_name():
     return config.get("service_name", DEFAULT_CONFIG["service_name"])
 
 
-def update_config(proxifier_exe_path=None, service_name=None):
+def update_config(proxifier_exe_path=None, service_name=None, auto_start=None, start_minimized=None):
     """更新配置"""
     config = load_config()
     
@@ -79,4 +81,22 @@ def update_config(proxifier_exe_path=None, service_name=None):
     if service_name is not None:
         config["service_name"] = service_name
     
+    if auto_start is not None:
+        config["auto_start"] = auto_start
+    
+    if start_minimized is not None:
+        config["start_minimized"] = start_minimized
+    
     return save_config(config)
+
+
+def get_auto_start():
+    """获取是否开机启动"""
+    config = load_config()
+    return config.get("auto_start", DEFAULT_CONFIG["auto_start"])
+
+
+def get_start_minimized():
+    """获取启动时是否最小化"""
+    config = load_config()
+    return config.get("start_minimized", DEFAULT_CONFIG["start_minimized"])

@@ -6,6 +6,8 @@
 
 - **proxifier_exe_path**: Proxifier 可执行文件的完整路径
 - **service_name**: Proxifier 驱动服务的名称（默认为 `proxifierdrv`）
+- **auto_start**: 是否在 Windows 登录时自动启动程序（`true`/`false`）
+- **start_minimized**: 程序启动时是否最小化到系统托盘。如果设置为 `false`，程序启动时会同时打开设置窗口。
 
 ## 配置方式
 
@@ -27,7 +29,9 @@
 ```json
 {
     "proxifier_exe_path": "D:\\Software\\Common\\Proxifier\\Proxifier.exe",
-    "service_name": "proxifierdrv"
+    "service_name": "proxifierdrv",
+    "auto_start": false,
+    "start_minimized": true
 }
 ```
 
@@ -43,6 +47,8 @@
 
 - **proxifier_exe_path**: `D:\Software\Common\Proxifier\Proxifier.exe`
 - **service_name**: `proxifierdrv`
+- **auto_start**: `false`
+- **start_minimized**: `true`
 
 ## 配置文件位置
 
