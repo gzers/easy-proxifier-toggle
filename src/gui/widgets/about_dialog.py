@@ -13,7 +13,7 @@ class AboutDialog(tk.Toplevel):
         self.title("关于")
         self.geometry("350x220")
         self.resizable(False, False)
-        self.configure(bg=COLORS["background"])
+        self.configure(bg=COLORS["bg_window"])
         
         # 设置为模态窗口
         self.transient(master)
@@ -33,7 +33,7 @@ class AboutDialog(tk.Toplevel):
             self, 
             text="Easy-Proxifier-Toggler", 
             font=FONTS["title"], 
-            bg=COLORS["background"], 
+            bg=COLORS["bg_window"], 
             fg=COLORS["primary"]
         ).pack(pady=(20, 10))
         
@@ -42,7 +42,7 @@ class AboutDialog(tk.Toplevel):
             self, 
             text=f"版本: v{self.version}", 
             font=FONTS["normal"], 
-            bg=COLORS["background"]
+            bg=COLORS["bg_window"]
         ).pack()
         
         # 作者信息
@@ -50,7 +50,7 @@ class AboutDialog(tk.Toplevel):
             self, 
             text=f"作者: {self.author}", 
             font=FONTS["normal"], 
-            bg=COLORS["background"]
+            bg=COLORS["bg_window"]
         ).pack()
         
         # GitHub 链接
@@ -60,7 +60,7 @@ class AboutDialog(tk.Toplevel):
             font=FONTS["normal"], 
             fg=COLORS["primary"], 
             cursor="hand2", 
-            bg=COLORS["background"]
+            bg=COLORS["bg_window"]
         )
         link_label.pack(pady=15)
         link_label.bind("<Button-1>", lambda e: webbrowser.open(self.github_url))

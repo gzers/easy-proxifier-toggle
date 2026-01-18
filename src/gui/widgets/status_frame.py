@@ -2,12 +2,12 @@ import tkinter as tk
 import threading
 import time
 from ...core import service, process
-from ..styles import create_styled_button, COLORS, FONTS
+from ..styles import create_styled_button, COLORS, FONTS, FluentCard
 
-class StatusFrame(tk.LabelFrame):
-    """状态监控与切换控制板块"""
+class StatusFrame(FluentCard):
+    """状态监控与切换控制板块 - Fluent UI 风格"""
     def __init__(self, master, config, **kwargs):
-        super().__init__(master, text=" 当前状态 ", font=FONTS["title"], padx=15, pady=10, **kwargs)
+        super().__init__(master, title="当前状态", **kwargs)
         self.config = config
         self.is_monitoring = True
         
@@ -18,17 +18,17 @@ class StatusFrame(tk.LabelFrame):
         self._start_monitor()
 
     def _setup_ui(self):
-        info_frame = tk.Frame(self, bg=self["bg"])
+        info_frame = tk.Frame(self, bg=COLORS["bg_card"])
         info_frame.pack(side=tk.LEFT, fill="both", expand=True)
         
         # 驱动服务状态
-        tk.Label(info_frame, text="驱动服务:", font=("Microsoft YaHei UI", 10), bg=self["bg"]).grid(row=0, column=0, sticky="w")
-        self.service_label = tk.Label(info_frame, textvariable=self.service_status_var, font=("Consolas", 10, "bold"), bg=self["bg"])
+        tk.Label(info_frame, text="驱动服务:", font=FONTS["normal"], fg=COLORS["text_secondary"], bg=COLORS["bg_card"]).grid(row=0, column=0, sticky="w", pady=2)
+        self.service_label = tk.Label(info_frame, textvariable=self.service_status_var, font=FONTS["title"], bg=COLORS["bg_card"])
         self.service_label.grid(row=0, column=1, sticky="w", padx=10)
         
         # 进程状态
-        tk.Label(info_frame, text="进程状态:", font=("Microsoft YaHei UI", 10), bg=self["bg"]).grid(row=1, column=0, sticky="w")
-        self.process_label = tk.Label(info_frame, textvariable=self.process_status_var, font=("Consolas", 10, "bold"), bg=self["bg"])
+        tk.Label(info_frame, text="进程状态:", font=FONTS["normal"], fg=COLORS["text_secondary"], bg=COLORS["bg_card"]).grid(row=1, column=0, sticky="w", pady=2)
+        self.process_label = tk.Label(info_frame, textvariable=self.process_status_var, font=FONTS["title"], bg=COLORS["bg_card"])
         self.process_label.grid(row=1, column=1, sticky="w", padx=10)
         
         # 切换按钮
@@ -36,10 +36,10 @@ class StatusFrame(tk.LabelFrame):
             self, 
             text="切换状态", 
             command=self._handle_toggle,
-            width=12, height=1, # height in text units, styled button has padding
-            style="primary"
+            width=12,
+            style="accent"
         )
-        self.toggle_btn.pack(side=tk.RIGHT, padx=10)
+        self.toggle_btn.pack(side=tk.RIGHT, padx=5)
 
     def _handle_toggle(self):
         """处理切换逻辑"""

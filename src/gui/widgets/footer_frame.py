@@ -10,8 +10,8 @@ class FooterFrame(tk.Frame):
         self._setup_ui()
 
     def _setup_ui(self):
-        # 分割线
-        separator = tk.Frame(self, height=1, bg="#DDDDDD")
+        # 分割线 (更淡的颜色)
+        separator = tk.Frame(self, height=1, bg="#E5E5E5")
         separator.pack(fill="x", pady=(0, 10))
         
         # 容器用于居中显示
@@ -23,14 +23,14 @@ class FooterFrame(tk.Frame):
             content_frame, 
             text=f"版本: v{self.version}", 
             font=FONTS["small"], 
-            fg="#999", 
+            fg=COLORS["text_secondary"], 
             bg=self["bg"]
-        ).pack(side=tk.LEFT, padx=10)
+        ).pack(side=tk.LEFT, padx=12)
         
         tk.Label(
             content_frame, 
             text=f"作者: {self.author}", 
             font=FONTS["small"], 
-            fg="#bbb", 
+            fg=COLORS["text_secondary"], 
             bg=self["bg"]
-        ).pack(side=tk.LEFT, padx=10)
+        ).pack(side=tk.LEFT, padx=12)

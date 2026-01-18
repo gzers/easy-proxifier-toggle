@@ -36,8 +36,8 @@ class SettingsWindow:
         self.window.title("Easy-Proxifier-Toggler 主控面板")
         
         # 窗口布局与大小
-        self._center_window(650, 620)
-        self.window.configure(bg=COLORS["background"])
+        self._center_window(650, 700)
+        self.window.configure(bg=COLORS["bg_window"])
         self.window.resizable(False, False)
         
         # 设置图标
@@ -67,50 +67,58 @@ class SettingsWindow:
         """组装各个模块化组件"""
         pad_x = 25
         
-        # 1. 状态监控板块
-        self.status_panel = StatusFrame(self.window, self.initial_config, bg=COLORS["background"])
-        self.status_panel.pack(fill="x", padx=pad_x, pady=(20, 10))
-        
-        # 2. 基本配置板块
-        self.config_panel = ConfigFrame(self.window, self.initial_config, bg=COLORS["background"])
-        self.config_panel.pack(fill="x", padx=pad_x, pady=10)
-        
-        # 3. 启动配置板块
-        self.startup_panel = StartupFrame(self.window, self.initial_config, bg=COLORS["background"])
-        self.startup_panel.pack(fill="x", padx=pad_x, pady=10)
-        
-        # 4. 页脚组件 (版本/作者) - 最先 pack 到底部，确保它在最底层
+        # 1. 页脚组件 (版本/作者) - 首先 pack 到底部，确保空间
         from .. import __version__, __author__
-        self.footer = FooterFrame(self.window, __version__, __author__, bg=COLORS["background"])
-        self.footer.pack(side=tk.BOTTOM, fill="x", pady=(10, 5))
+        self.footer = FooterFrame(self.window, __version__, __author__, bg=COLORS["bg_window"])
+        self.footer.pack(side=tk.BOTTOM, fill="x", pady=(5, 5))
 
-        # 5. 底部操作按钮区域 - 其次 pack 到底部，位于页脚上方
-        btn_frame = tk.Frame(self.window, bg=COLORS["background"])
+        # 2. 底部操作按钮区域 - 其次 pack 到底部
+        btn_frame = tk.Frame(self.window, bg=COLORS["bg_window"])
         btn_frame.pack(side=tk.BOTTOM, fill="x", pady=(10, 15))
         
-        # 保存按钮 (右侧侧)
+        # 保存按钮 (右侧)
         create_styled_button(
-            btn_frame, text="保存所有修改", 
+            btn_frame, text="保存修改", 
             command=self._handle_save, 
-            style="success",
-            width=15
+            style="accent",
+            width=12
         ).pack(side=tk.RIGHT, padx=(10, pad_x))
         
         # 重置按钮
         create_styled_button(
-            btn_frame, text="恢复初始配置", 
+            btn_frame, text="撤销更改", 
             command=self._handle_reset, 
-            style="secondary",
-            width=12
+            style="standard",
+            width=10
         ).pack(side=tk.RIGHT, padx=10)
 
-        # 关于按钮 (放在恢复初始设置左边)
+        # 关于按钮
         create_styled_button(
-            btn_frame, text="关于", 
+            btn_frame, text="关于软件", 
             command=self._handle_about, 
-            style="primary",
-            width=8
+            style="standard",
+            width=10
         ).pack(side=tk.RIGHT, padx=10)
+
+        # 3. 顶部标题区域
+        header_frame = tk.Frame(self.window, bg=COLORS["bg_window"])
+        header_frame.pack(fill="x", padx=pad_x, pady=(25, 15))
+        
+        tk.Label(
+            header_frame, text="Easy-Proxifier-Toggler", 
+            font=FONTS["caption"], fg=COLORS["primary"], 
+            bg=COLORS["bg_window"]
+        ).pack(side=tk.LEFT)
+        
+        # 4. 中间卡片区域
+        self.status_panel = StatusFrame(self.window, self.initial_config)
+        self.status_panel.pack(fill="x", padx=pad_x, pady=8)
+        
+        self.config_panel = ConfigFrame(self.window, self.initial_config)
+        self.config_panel.pack(fill="x", padx=pad_x, pady=8)
+        
+        self.startup_panel = StartupFrame(self.window, self.initial_config)
+        self.startup_panel.pack(fill="x", padx=pad_x, pady=8)
 
     def _handle_about(self):
         """显示关于弹窗"""

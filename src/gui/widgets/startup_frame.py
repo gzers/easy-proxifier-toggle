@@ -1,10 +1,12 @@
 import tkinter as tk
 from ..styles import FONTS, COLORS
 
-class StartupFrame(tk.LabelFrame):
-    """启动选项配置板块"""
+from ..styles import FONTS, COLORS, FluentCard, apply_fluent_checkbutton
+
+class StartupFrame(FluentCard):
+    """启动选项配置板块 - Fluent UI 风格"""
     def __init__(self, master, config, **kwargs):
-        super().__init__(master, text=" 启动及运行 ", font=FONTS["title"], padx=15, pady=10, **kwargs)
+        super().__init__(master, title="启动及运行", **kwargs)
         
         self.auto_start_var = tk.BooleanVar(value=config.get("auto_start", False))
         self.minimized_var = tk.BooleanVar(value=config.get("start_minimized", True))
@@ -12,23 +14,21 @@ class StartupFrame(tk.LabelFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        tk.Checkbutton(
+        cb1 = tk.Checkbutton(
             self, 
             text="随 Windows 登录自动启动程序", 
-            variable=self.auto_start_var, 
-            font=("Microsoft YaHei UI", 9),
-            bg=self["bg"],
-            activebackground=self["bg"]
-        ).pack(anchor="w", pady=2)
+            variable=self.auto_start_var
+        )
+        apply_fluent_checkbutton(cb1)
+        cb1.pack(anchor="w", pady=2)
         
-        tk.Checkbutton(
+        cb2 = tk.Checkbutton(
             self, 
             text="程序启动时自动最小化到系统托盘", 
-            variable=self.minimized_var, 
-            font=("Microsoft YaHei UI", 9),
-            bg=self["bg"],
-            activebackground=self["bg"]
-        ).pack(anchor="w", pady=2)
+            variable=self.minimized_var
+        )
+        apply_fluent_checkbutton(cb2)
+        cb2.pack(anchor="w", pady=2)
 
     def get_data(self):
         return {
