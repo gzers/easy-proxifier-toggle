@@ -17,12 +17,12 @@ echo.
 
 echo [2/3] 开始打包...
 cd ..
-pyinstaller --noconfirm --onefile --windowed --name="ProxifierToggler" run.py
+pyinstaller --noconfirm --onefile --windowed --icon="assets/icon.ico" --add-data "assets;assets" --name="Easy-Proxifier-Toggler" run.py
 echo.
 
 echo [3/3] 打包完成！
 echo.
-echo 生成的文件位置: dist\ProxifierToggler.exe
+echo 生成的文件位置: dist\Easy-Proxifier-Toggler.exe
 echo.
 echo 按任意键退出...
 pause >nul

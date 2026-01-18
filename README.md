@@ -1,4 +1,4 @@
-# Proxifier 切换器
+# Easy-Proxifier-Toggler
 
 [![Version](https://img.shields.io/badge/version-2.1.1-blue.svg)](docs/CHANGELOG.md)
 
@@ -114,20 +114,24 @@ pip install pyinstaller
 
 ### 2. 打包程序
 
+### 2. 打包程序
+
 ```bash
-pyinstaller --noconfirm --onefile --windowed --icon=icon.ico --name="ProxifierToggler" proxifier_toggler.py
+# 确保在项目根目录下运行
+pyinstaller --noconfirm --onefile --windowed --icon="assets/icon.ico" --add-data "assets;assets" --name="Easy-Proxifier-Toggler" run.py
 ```
 
 参数说明：
 - `--noconfirm`: 不提示确认，直接覆盖
 - `--onefile`: 打包成单个 exe 文件
 - `--windowed`: 不显示控制台窗口
-- `--icon=icon.ico`: 指定图标文件（可选）
+- `--icon="assets/icon.ico"`: 指定图标文件
+- `--add-data "assets;assets"`: 将图标资源文件夹打包进 exe
 - `--name`: 指定输出的 exe 文件名
 
 ### 3. 查找生成的文件
 
-打包完成后，在 `dist` 文件夹中可以找到 `ProxifierToggler.exe`。
+打包完成后，在 `dist` 文件夹中可以找到 `Easy-Proxifier-Toggler.exe`。
 
 ## 工作原理
 
