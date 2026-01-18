@@ -1,12 +1,15 @@
 """主控面板 - 采用模块化组件设计"""
 import tkinter as tk
 from tkinter import messagebox
+import webbrowser
 from ..config import manager as config_manager
 from ..utils import startup
 from .widgets.status_frame import StatusFrame
 from .widgets.config_frame import ConfigFrame
 from .widgets.startup_frame import StartupFrame
-from .styles import create_styled_button, COLORS
+from .widgets.footer_frame import FooterFrame
+from .widgets.about_dialog import AboutDialog
+from .styles import create_styled_button, COLORS, FONTS
 
 
 class SettingsWindow:
@@ -76,11 +79,16 @@ class SettingsWindow:
         self.startup_panel = StartupFrame(self.window, self.initial_config, bg=COLORS["background"])
         self.startup_panel.pack(fill="x", padx=pad_x, pady=10)
         
-        # 4. 底部操作按钮区域
+        # 4. 页脚组件 (版本/作者) - 最先 pack 到底部，确保它在最底层
+        from .. import __version__, __author__
+        self.footer = FooterFrame(self.window, __version__, __author__, bg=COLORS["background"])
+        self.footer.pack(side=tk.BOTTOM, fill="x", pady=(10, 5))
+
+        # 5. 底部操作按钮区域 - 其次 pack 到底部，位于页脚上方
         btn_frame = tk.Frame(self.window, bg=COLORS["background"])
-        btn_frame.pack(side=tk.BOTTOM, fill="x", pady=20)
+        btn_frame.pack(side=tk.BOTTOM, fill="x", pady=(10, 15))
         
-        # 保存按钮
+        # 保存按钮 (右侧侧)
         create_styled_button(
             btn_frame, text="保存所有修改", 
             command=self._handle_save, 
@@ -95,14 +103,19 @@ class SettingsWindow:
             style="secondary",
             width=12
         ).pack(side=tk.RIGHT, padx=10)
-        
-        # 版本标识
-        from .. import __version__
-        tk.Label(
-            self.window, 
-            text=f"Easy-Proxifier-Toggler v{__version__} | By EZIO T", 
-            font=("Consolas", 8), fg="#aaa", bg=COLORS["background"]
-        ).place(x=pad_x, y=585)
+
+        # 关于按钮 (放在恢复初始设置左边)
+        create_styled_button(
+            btn_frame, text="关于", 
+            command=self._handle_about, 
+            style="primary",
+            width=8
+        ).pack(side=tk.RIGHT, padx=10)
+
+    def _handle_about(self):
+        """显示关于弹窗"""
+        from .. import __version__, __author__, __github_url__
+        AboutDialog(self.window, __version__, __author__, __github_url__)
 
     def _handle_save(self):
         """收集各组件数据并保存"""
