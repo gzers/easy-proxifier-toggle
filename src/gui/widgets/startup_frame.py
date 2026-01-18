@@ -1,6 +1,4 @@
 import tkinter as tk
-from ..styles import FONTS, COLORS
-
 from ..styles import FONTS, COLORS, FluentCard, apply_fluent_checkbutton
 
 class StartupFrame(FluentCard):
@@ -8,27 +6,30 @@ class StartupFrame(FluentCard):
     def __init__(self, master, config, **kwargs):
         super().__init__(master, title="启动及运行", **kwargs)
         
+        # 确保变量绑定到根窗口，防止生命周期问题
         self.auto_start_var = tk.BooleanVar(value=config.get("auto_start", False))
         self.minimized_var = tk.BooleanVar(value=config.get("start_minimized", True))
         
         self._setup_ui()
 
     def _setup_ui(self):
-        cb1 = tk.Checkbutton(
+        # 1. 随登录启动
+        self.cb1 = tk.Checkbutton(
             self, 
             text="随 Windows 登录自动启动程序", 
             variable=self.auto_start_var
         )
-        apply_fluent_checkbutton(cb1)
-        cb1.pack(anchor="w", pady=2)
+        apply_fluent_checkbutton(self.cb1)
+        self.cb1.pack(fill="x", pady=(2, 5))
         
-        cb2 = tk.Checkbutton(
+        # 2. 自动最小化
+        self.cb2 = tk.Checkbutton(
             self, 
             text="程序启动时自动最小化到系统托盘", 
             variable=self.minimized_var
         )
-        apply_fluent_checkbutton(cb2)
-        cb2.pack(anchor="w", pady=2)
+        apply_fluent_checkbutton(self.cb2)
+        self.cb2.pack(fill="x", pady=(5, 2))
 
     def get_data(self):
         return {

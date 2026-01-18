@@ -10,9 +10,9 @@ class FooterFrame(tk.Frame):
         self._setup_ui()
 
     def _setup_ui(self):
-        # 分割线 (更淡的颜色)
-        separator = tk.Frame(self, height=1, bg="#E5E5E5")
-        separator.pack(fill="x", pady=(0, 10))
+        # 分割线 (使用全局边框色)
+        separator = tk.Frame(self, height=1, bg=COLORS["border"])
+        separator.pack(fill="x", pady=(0, 15))
         
         # 容器用于居中显示
         content_frame = tk.Frame(self, bg=self["bg"])

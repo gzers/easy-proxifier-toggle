@@ -18,28 +18,40 @@ class StatusFrame(FluentCard):
         self._start_monitor()
 
     def _setup_ui(self):
-        info_frame = tk.Frame(self, bg=COLORS["bg_card"])
-        info_frame.pack(side=tk.LEFT, fill="both", expand=True)
+        # 整体采用两栏布局
+        container = tk.Frame(self, bg=COLORS["bg_card"])
+        container.pack(fill="both", expand=True)
+
+        info_frame = tk.Frame(container, bg=COLORS["bg_card"])
+        info_frame.grid(row=0, column=0, sticky="nsew")
+        container.grid_columnconfigure(0, weight=1)
         
-        # 驱动服务状态
-        tk.Label(info_frame, text="驱动服务:", font=FONTS["normal"], fg=COLORS["text_secondary"], bg=COLORS["bg_card"]).grid(row=0, column=0, sticky="w", pady=2)
-        self.service_label = tk.Label(info_frame, textvariable=self.service_status_var, font=FONTS["title"], bg=COLORS["bg_card"])
-        self.service_label.grid(row=0, column=1, sticky="w", padx=10)
+        # 驱动服务状态 (使用 Badge 风格)
+        tk.Label(info_frame, text="驱动服务:", font=FONTS["normal"], fg=COLORS["text_secondary"], bg=COLORS["bg_card"]).grid(row=0, column=0, sticky="w", pady=5)
+        
+        self.service_badge = tk.Frame(info_frame, bg=COLORS["bg_hover"], padx=8, pady=2)
+        self.service_badge.grid(row=0, column=1, sticky="w", padx=15)
+        self.service_label = tk.Label(self.service_badge, textvariable=self.service_status_var, font=FONTS["bold"], bg=COLORS["bg_hover"])
+        self.service_label.pack()
         
         # 进程状态
-        tk.Label(info_frame, text="进程状态:", font=FONTS["normal"], fg=COLORS["text_secondary"], bg=COLORS["bg_card"]).grid(row=1, column=0, sticky="w", pady=2)
-        self.process_label = tk.Label(info_frame, textvariable=self.process_status_var, font=FONTS["title"], bg=COLORS["bg_card"])
-        self.process_label.grid(row=1, column=1, sticky="w", padx=10)
+        tk.Label(info_frame, text="进程状态:", font=FONTS["normal"], fg=COLORS["text_secondary"], bg=COLORS["bg_card"]).grid(row=1, column=0, sticky="w", pady=5)
+        
+        self.process_badge = tk.Frame(info_frame, bg=COLORS["bg_hover"], padx=8, pady=2)
+        self.process_badge.grid(row=1, column=1, sticky="w", padx=15)
+        self.process_label = tk.Label(self.process_badge, textvariable=self.process_status_var, font=FONTS["bold"], bg=COLORS["bg_hover"])
+        self.process_label.pack()
         
         # 切换按钮
         self.toggle_btn = create_styled_button(
-            self, 
-            text="切换状态", 
+            container, 
+            text="切换服务状态", 
             command=self._handle_toggle,
-            width=12,
-            style="accent"
+            width=14,
+            style="accent",
+            icon="⚡"
         )
-        self.toggle_btn.pack(side=tk.RIGHT, padx=5)
+        self.toggle_btn.grid(row=0, column=1, sticky="e", padx=(10, 0))
 
     def _handle_toggle(self):
         """处理切换逻辑"""
@@ -48,10 +60,10 @@ class StatusFrame(FluentCard):
         p_path = self.config.get("proxifier_exe_path", "")
         
         real_btn = self.toggle_btn
-        real_btn.config(state=tk.DISABLED, text="处理中...")
+        real_btn.config(state=tk.DISABLED, text=" 正在处理...")
         
         def run_toggle():
-            if curr_s == "RUNNING":
+            if "RUNNING" in curr_s:
                 process.kill_proxifier(p_path)
                 time.sleep(0.5)
                 service.stop_service(s_name)
@@ -60,7 +72,7 @@ class StatusFrame(FluentCard):
                     process.start_proxifier(p_path)
             
             # 操作完成后恢复按钮状态
-            self.after(500, lambda: real_btn.config(state=tk.NORMAL, text="切换状态"))
+            self.after(500, lambda: real_btn.config(state=tk.NORMAL, text="⚡ 切换服务状态"))
             
         threading.Thread(target=run_toggle, daemon=True).start()
 
@@ -75,12 +87,27 @@ class StatusFrame(FluentCard):
                     s_status = service.get_service_status(s_name)
                     p_running = process.is_proxifier_running(p_path)
                     
-                    self.service_status_var.set(s_status)
-                    self.process_status_var.set("运行中" if p_running else "已停止")
+                    # 更新文字
+                    self.service_status_var.set(f"● {s_status}")
+                    self.process_status_var.set("● 运行中" if p_running else "● 已停止")
                     
-                    # 动态颜色
-                    self.service_label.config(fg=COLORS["success"] if s_status == "RUNNING" else COLORS["danger"])
-                    self.process_label.config(fg=COLORS["success"] if p_running else COLORS["danger"])
+                    # 动态颜色 (Badge 效果)
+                    if s_status == "RUNNING":
+                        s_bg, s_fg = COLORS["success_bg"], COLORS["success"]
+                    elif s_status == "STOPPED":
+                        s_bg, s_fg = COLORS["danger_bg"], COLORS["danger"]
+                    else:
+                        s_bg, s_fg = COLORS["bg_hover"], COLORS["text_secondary"]
+                    
+                    if p_running:
+                        p_bg, p_fg = COLORS["success_bg"], COLORS["success"]
+                    else:
+                        p_bg, p_fg = COLORS["danger_bg"], COLORS["danger"]
+
+                    self.service_badge.config(bg=s_bg)
+                    self.service_label.config(bg=s_bg, fg=s_fg)
+                    self.process_badge.config(bg=p_bg)
+                    self.process_label.config(bg=p_bg, fg=p_fg)
                 except:
                     pass
                 time.sleep(2)

@@ -36,8 +36,8 @@ class SettingsWindow:
         self.window = tk.Tk()
         self.window.title("Easy-Proxifier-Toggler 主控面板")
         
-        # 窗口布局与大小
-        self._center_window(650, 700)
+        # 窗口布局与大小 (调高高度，留出充足余地)
+        self._center_window(680, 760)
         self.window.configure(bg=COLORS["bg_window"])
         self.window.resizable(False, False)
         
@@ -66,42 +66,49 @@ class SettingsWindow:
 
     def _create_layout(self):
         """组装各个模块化组件"""
-        pad_x = 25
+        pad_x = 30
         
-        # 1. 页脚组件 (版本/作者) - 首先 pack 到底部，确保空间
+        # 1. 页脚组件 (版本/作者)
         from .. import __version__, __author__
         self.footer = FooterFrame(self.window, __version__, __author__, bg=COLORS["bg_window"])
-        self.footer.pack(side=tk.BOTTOM, fill="x", pady=(5, 5))
+        self.footer.pack(side=tk.BOTTOM, fill="x", pady=(5, 10))
 
-        # 2. 底部操作按钮区域 - 其次 pack 到底部
+        # 2. 底部操作按钮区域
         btn_frame = tk.Frame(self.window, bg=COLORS["bg_window"])
-        btn_frame.pack(side=tk.BOTTOM, fill="x", pady=(10, 15))
+        btn_frame.pack(side=tk.BOTTOM, fill="x", pady=(5, 15))
         
-        # 保存按钮 (右侧)
+        # 左侧放置次要按钮
+        secondary_btn_frame = tk.Frame(btn_frame, bg=COLORS["bg_window"])
+        secondary_btn_frame.pack(side=tk.LEFT)
+
+        # 关于按钮
+        create_styled_button(
+            secondary_btn_frame, text="关于软件", 
+            command=self._handle_about, 
+            style="standard",
+            width=10,
+            icon="ℹ️"
+        ).pack(side=tk.LEFT, padx=(pad_x, 10))
+
+        # 保存按钮 (最右侧，高亮)
         create_styled_button(
             btn_frame, text="保存修改", 
             command=self._handle_save, 
             style="accent",
-            width=12
+            width=12,
+            icon="💾"
         ).pack(side=tk.RIGHT, padx=(10, pad_x))
-        
+
         # 重置按钮
         create_styled_button(
             btn_frame, text="撤销更改", 
             command=self._handle_reset, 
             style="standard",
-            width=10
+            width=10,
+            icon="↩️"
         ).pack(side=tk.RIGHT, padx=10)
 
-        # 关于按钮
-        create_styled_button(
-            btn_frame, text="关于软件", 
-            command=self._handle_about, 
-            style="standard",
-            width=10
-        ).pack(side=tk.RIGHT, padx=10)
-
-        # 3. 顶部标题区域 (使用 HeaderFrame 组件)
+        # 3. 顶部标题区域
         logo_path = config_manager.ASSETS_DIR / "gzgg-logo.gif"
         self.header = HeaderFrame(
             self.window, 
@@ -109,15 +116,18 @@ class SettingsWindow:
             logo_path=logo_path,
             bg=COLORS["bg_window"]
         )
-        self.header.pack(fill="x", padx=pad_x, pady=(25, 15))
+        self.header.pack(fill="x", padx=pad_x, pady=(20, 10))
         
-        # 4. 中间卡片区域
+        # 4. 中间卡片渲染 (按顺序 TOP 堆叠)
+        # 状态面板
         self.status_panel = StatusFrame(self.window, self.initial_config)
         self.status_panel.pack(fill="x", padx=pad_x, pady=8)
         
+        # 参数配置
         self.config_panel = ConfigFrame(self.window, self.initial_config)
         self.config_panel.pack(fill="x", padx=pad_x, pady=8)
         
+        # 启动设置
         self.startup_panel = StartupFrame(self.window, self.initial_config)
         self.startup_panel.pack(fill="x", padx=pad_x, pady=8)
 

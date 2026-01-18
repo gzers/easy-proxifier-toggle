@@ -32,44 +32,51 @@ class AboutDialog(tk.Toplevel):
         tk.Label(
             self, 
             text="Easy-Proxifier-Toggler", 
-            font=FONTS["title"], 
+            font=FONTS["caption"], 
             bg=COLORS["bg_window"], 
             fg=COLORS["primary"]
-        ).pack(pady=(20, 10))
+        ).pack(pady=(25, 5))
         
         # 版本信息
+        version_frame = tk.Frame(self, bg=COLORS["bg_window"])
+        version_frame.pack(pady=5)
+
         tk.Label(
-            self, 
-            text=f"版本: v{self.version}", 
-            font=FONTS["normal"], 
-            bg=COLORS["bg_window"]
-        ).pack()
+            version_frame, 
+            text=f"Version {self.version}", 
+            font=FONTS["bold"], 
+            bg=COLORS["bg_window"],
+            fg=COLORS["text_main"]
+        ).pack(side=tk.LEFT)
         
         # 作者信息
         tk.Label(
             self, 
-            text=f"作者: {self.author}", 
+            text=f"By {self.author}", 
             font=FONTS["normal"], 
-            bg=COLORS["bg_window"]
+            bg=COLORS["bg_window"],
+            fg=COLORS["text_secondary"]
         ).pack()
         
         # GitHub 链接
         link_label = tk.Label(
             self, 
-            text="项目开源地址 (GitHub)", 
+            text="Visit Web Site 🌐", 
             font=FONTS["normal"], 
             fg=COLORS["primary"], 
             cursor="hand2", 
-            bg=COLORS["bg_window"]
+            bg=COLORS["bg_window"],
+            padx=10,
+            pady=10
         )
-        link_label.pack(pady=15)
+        link_label.pack(pady=(10, 10))
         link_label.bind("<Button-1>", lambda e: webbrowser.open(self.github_url))
 
         # 关闭按钮
         create_styled_button(
             self, 
-            text="关闭", 
+            text="确定", 
             command=self.destroy, 
-            style="secondary", 
+            style="standard", 
             width=10
-        ).pack(pady=5)
+        ).pack(pady=(5, 15))
