@@ -39,14 +39,21 @@ class TrayIcon:
         print(f"警告: 找不到图标文件 {icon_path}，请检查 assets 目录。")
         return Image.new('RGBA', (64, 64), (0, 0, 0, 0))
 
-    def update_state(self):
-        """同步实际服务状态到托盘图标"""
+    def update_state(self, service_status=None):
+        """同步实际服务状态到托盘图标
+        
+        Args:
+            service_status: 可选的服务状态，如果提供则直接使用，避免重复查询
+        """
         if not self.icon:
             return
-            
-        service_name = config_manager.get_service_name()
-        status = service.get_service_status(service_name)
-        is_active = (status == "RUNNING")
+        
+        # 如果没有提供状态，才查询系统
+        if service_status is None:
+            service_name = config_manager.get_service_name()
+            service_status = service.get_service_status(service_name)
+        
+        is_active = (service_status == "RUNNING")
         
         new_image = self._create_image(active=is_active)
         if self.icon.icon != new_image:
@@ -165,8 +172,12 @@ def setup_tray_async(settings_window):
     thread.start()
     return thread
 
-def refresh_tray_icon():
-    """刷新托盘状态的外部接口"""
+def refresh_tray_icon(service_status=None):
+    """刷新托盘状态的外部接口
+    
+    Args:
+        service_status: 可选的服务状态，如果提供则直接使用，避免重复查询
+    """
     if _tray_instance:
-        _tray_instance.update_state()
+        _tray_instance.update_state(service_status)
 

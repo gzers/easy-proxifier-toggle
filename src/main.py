@@ -4,6 +4,7 @@ Proxifier Toggler - 主程序入口
 """
 import sys
 import os
+import ctypes
 
 
 def main():
@@ -11,6 +12,19 @@ def main():
     
     负责环境检查、权限请求以及启动主应用程序类。
     """
+    # 0. 单实例互斥锁检查 (防止多进程冲突)
+    mutex_name = "Global\\ProxifierTogglerMutex"
+    mutex = ctypes.windll.kernel32.CreateMutexW(None, False, mutex_name)
+    if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
+        # 弹出系统消息框提示
+        ctypes.windll.user32.MessageBoxW(
+            0,
+            "程序已在运行中，请检查系统托盘。",
+            "Proxifier Toggler",
+            0x40  # MB_ICONINFORMATION
+        )
+        sys.exit(0)
+    
     # 1. 环境预检查 (开发模式跳过管理员检查)
     skip_admin = os.environ.get('SKIP_ADMIN_CHECK') == '1'
     if not skip_admin:

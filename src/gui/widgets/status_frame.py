@@ -246,11 +246,11 @@ class StatusFrame(ctk.CTkFrame):
         self.last_status["service"] = s_status
         self.last_status["process"] = "RUNNING" if p_running else "STOPPED"
         
-        # 刷新托盘图标
+        # 刷新托盘图标 (传递状态，避免重复查询)
         if status_changed:
             try:
                 from ..tray_icon import refresh_tray_icon
-                refresh_tray_icon()
+                refresh_tray_icon(s_status)  # 传递状态参数
             except ImportError:
                 pass
         

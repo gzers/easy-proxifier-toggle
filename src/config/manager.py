@@ -29,6 +29,9 @@ CONFIG_DIR = PROJECT_ROOT / "config"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 ASSETS_DIR = RESOURCE_ROOT / "assets"
 
+# 配置内存缓存 (减少磁盘 I/O)
+_config_cache = None
+
 
 def _ensure_config_dir():
     """确保配置目录存在"""
@@ -36,7 +39,16 @@ def _ensure_config_dir():
 
 
 def load_config():
-    """加载配置文件，如果不存在则创建默认配置"""
+    """加载配置文件，如果不存在则创建默认配置
+    
+    使用内存缓存机制，避免重复读取磁盘文件
+    """
+    global _config_cache
+    
+    # 如果缓存存在，直接返回副本
+    if _config_cache is not None:
+        return _config_cache.copy()
+    
     _ensure_config_dir()
     
     if not CONFIG_FILE.exists():
@@ -52,6 +64,8 @@ def load_config():
             if key not in config:
                 config[key] = DEFAULT_CONFIG[key]
         
+        # 缓存配置
+        _config_cache = config.copy()
         return config
     except Exception as e:
         print(f"加载配置文件失败: {e}")
@@ -59,12 +73,20 @@ def load_config():
 
 
 def save_config(config):
-    """保存配置到文件"""
+    """保存配置到文件
+    
+    同时更新内存缓存，保持缓存与文件同步
+    """
+    global _config_cache
+    
     _ensure_config_dir()
     
     try:
         with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
             json.dump(config, f, ensure_ascii=False, indent=4)
+        
+        # 更新缓存
+        _config_cache = config.copy()
         return True
     except Exception as e:
         print(f"保存配置文件失败: {e}")

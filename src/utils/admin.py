@@ -19,6 +19,8 @@ def run_as_admin():
     然后重新启动程序并退出当前进程。
     """
     if not is_admin():
+        print("检测到需要管理员权限")
+        print("正在请求管理员权限并重新启动...")
         try:
             # 获取命令行参数
             params = ' '.join([f'"{arg}"' for arg in sys.argv[1:]])
