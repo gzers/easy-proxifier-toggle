@@ -4,7 +4,7 @@
 
 # Easy-Proxifier-Toggler
 
-[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.4.1-blue.svg)](docs/CHANGELOG.md)
 
 **快速切换 Proxifier 运行状态的系统托盘工具**
 
