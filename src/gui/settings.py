@@ -57,7 +57,7 @@ class SettingsWindow:
         self.window.title("Easy-Proxifier-Toggler 主控面板")
         
         # 窗口布局与大小
-        self._center_window(720, 850)  # 稍微增加高度
+        self._center_window(640, 850)  # 稍微增加高度
         self.window.resizable(False, False)
         
         # 设置图标
