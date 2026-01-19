@@ -37,6 +37,13 @@ class UIStrings:
 
     # 窗口标题与通用文本
     APP_TITLE = "Proxifier 切换器"
+    
+    @classmethod
+    def get_app_title_with_version(cls) -> str:
+        """获取带版本号的应用标题"""
+        from .. import __version__
+        return f"{cls.APP_TITLE} v{__version__}"
+
     CURRENT_STATUS = "当前状态"
     SERVICE_NAME = "驱动服务"
     PROCESS_STATUS = "进程状态"

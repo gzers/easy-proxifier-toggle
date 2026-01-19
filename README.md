@@ -196,6 +196,7 @@ easy-proxifier-toggler/
 │   │   └── process.py       # 进程管理
 │   ├── gui/                 # GUI 相关
 │   │   ├── __init__.py
+│   │   ├── app.py           # 应用程序主类
 │   │   ├── ctk_styles.py    # CustomTkinter 样式定义
 │   │   ├── dpi_fix.py       # DPI 修复工具
 │   │   ├── tray_icon.py     # 托盘图标
@@ -215,7 +216,8 @@ easy-proxifier-toggler/
 │   └── utils/               # 工具函数
 │       ├── __init__.py
 │       ├── admin.py         # 管理员权限工具
-│       └── startup.py       # 开机启动工具
+│       ├── startup.py       # 开机启动工具
+│       └── win_utils.py     # Windows 平台特定工具
 ├── assets/                  # 资源文件目录
 │   ├── icon.ico             # 活动状态图标
 │   ├── icon.png             # 活动状态图标（PNG）

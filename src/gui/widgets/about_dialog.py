@@ -16,7 +16,7 @@ class AboutDialog:
         # 创建对话框窗口
         self.dialog = ctk.CTkToplevel(parent)
         self.dialog.title("关于软件")
-        self.dialog.geometry("450x350")
+        self.dialog.geometry("320x240")
         self.dialog.resizable(False, False)
         
         # 居中显示
