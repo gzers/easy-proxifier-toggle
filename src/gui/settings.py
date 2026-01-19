@@ -72,13 +72,28 @@ class SettingsWindow:
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
 
     def _set_window_icon(self):
-        """设置窗口图标 - 强制使用 icon.ico"""
+        """设置窗口图标 - 使用高分辨率图像提升任务栏清晰度"""
         try:
             if not self.window or not self.window.winfo_exists():
                 return
-            icon_path = config_manager.ASSETS_DIR / "icon.ico"
-            if icon_path.exists():
-                self.window.iconbitmap(str(icon_path))
+            
+            icon_path_ico = config_manager.ASSETS_DIR / "icon.ico"
+            icon_path_png = config_manager.ASSETS_DIR / "icon.png"
+            
+            # 1. 设置标准 iconbitmap (标题栏图标)
+            if icon_path_ico.exists():
+                self.window.iconbitmap(str(icon_path_ico))
+                
+            # 2. 设置高分辨率 wm_iconphoto (任务栏图标)
+            if icon_path_png.exists():
+                from PIL import Image, ImageTk
+                img = Image.open(icon_path_png)
+                # 调整到 256x256 确保视网膜屏幕下的极端清晰度
+                img = img.resize((256, 256), Image.Resampling.LANCZOS)
+                photo = ImageTk.PhotoImage(img)
+                self.window.wm_iconphoto(False, photo) # False 表示只作用于当前窗口
+                # 保持引用防止内存回收
+                self.window._icon_photo = photo
         except Exception as e:
             print(f"窗口设置图标失败: {e}")
     
@@ -91,7 +106,7 @@ class SettingsWindow:
         self.window.geometry(f"{width}x{height}+{x}+{y}")
     
     def _create_layout(self):
-        """组装各个模块化组件 - 按照从上到下的视觉顺序"""
+        """组装各个模块化组件 - 保持代码可读性与布局稳定性"""
         pad_x = Sizes.WINDOW_PAD_X
         
         # 1. 顶部标题区域
@@ -103,7 +118,7 @@ class SettingsWindow:
         )
         self.header.pack(side="top", fill="x", padx=pad_x, pady=(Sizes.WINDOW_PAD_Y, Sizes.PADDING))
         
-        # 2. 中间可滚动卡片容器
+        # 2. 中间可滚动卡片容器 (自动填充剩余空间)
         scroll_container = ctk.CTkScrollableFrame(
             self.window, 
             fg_color="transparent",
@@ -133,18 +148,21 @@ class SettingsWindow:
         )
         self.action_panel.pack(side="top", fill="x", padx=pad_x, pady=(Sizes.PADDING_SMALL, Sizes.PADDING))
         
-        # 4. 页脚组件（版本/作者）
+        # 4. 页脚组件
         from .. import __version__, __author__
         self.footer = FooterFrame(self.window, __version__, __author__)
         self.footer.pack(side="top", fill="x", padx=pad_x, pady=(Sizes.PADDING_SMALL, Sizes.WINDOW_PAD_Y))
 
     
-    def _toggle_theme(self):
-        """切换深色/浅色主题"""
-        new_mode = toggle_appearance_mode()
-        # 可以添加提示
-        mode_text = "深色" if new_mode == "dark" else "浅色"
-        print(f"已切换到{mode_text}模式")
+    def _toggle_theme(self, mode=None):
+        """切换或设置深色/浅色模式"""
+        new_mode = toggle_appearance_mode(mode)
+        mode_text = {
+            "light": "浅色",
+            "dark": "深色",
+            "system": "跟随系统"
+        }.get(new_mode, new_mode)
+        print(f"已切换到 {mode_text} 模式")
     
     def _handle_about(self):
         """显示关于弹窗"""
@@ -167,11 +185,18 @@ class SettingsWindow:
             messagebox.showerror("错误", "保存失败。")
     
     def _handle_reset(self):
-        """重置各组件的数据"""
-        if messagebox.askyesno("确认", "确定要撤销更改并恢复初始状态吗？"):
-            self.config_panel.set_data(self.initial_config)
-            self.startup_panel.set_data(self.initial_config)
-            self.status_panel.update_config(self.initial_config)
+        """重置各组件的数据为出厂默认值"""
+        from ..config.manager import DEFAULT_CONFIG
+        if messagebox.askyesno("确认", "确定要恢复出厂默认配置吗？\n(这将会清除您保存的所有自定义设置)"):
+            self.config_panel.set_data(DEFAULT_CONFIG)
+            self.startup_panel.set_data(DEFAULT_CONFIG)
+            self.status_panel.update_config(DEFAULT_CONFIG)
+            # 同时更新主题下拉框（如果主题也需要重置）
+            if hasattr(self, 'action_panel'):
+                theme_map = {"light": "浅色模式", "dark": "深色模式", "system": "跟随系统"}
+                default_mode = DEFAULT_CONFIG.get("appearance_mode", "system")
+                self.action_panel.theme_menu.set(theme_map.get(default_mode, "跟随系统"))
+                self._toggle_theme(default_mode)
     
     def _on_close(self):
         """关闭逻辑：停止任务并销毁窗口"""

@@ -32,13 +32,28 @@ class AboutDialog:
         self._setup_ui()
 
     def _set_window_icon(self):
-        """设置窗口图标 - 强制使用 icon.ico"""
+        """设置窗口图标 - 使用高分辨率图像提升清晰度"""
         try:
             if not self.dialog or not self.dialog.winfo_exists():
                 return
-            icon_path = config_manager.ASSETS_DIR / "icon.ico"
-            if icon_path.exists():
-                self.dialog.iconbitmap(str(icon_path))
+            
+            icon_path_ico = config_manager.ASSETS_DIR / "icon.ico"
+            icon_path_png = config_manager.ASSETS_DIR / "icon.png"
+            
+            # 1. 设置标准 iconbitmap
+            if icon_path_ico.exists():
+                self.dialog.iconbitmap(str(icon_path_ico))
+                
+            # 2. 设置高分辨率 wm_iconphoto (关键任务栏清晰度)
+            if icon_path_png.exists():
+                from PIL import Image, ImageTk
+                img = Image.open(icon_path_png)
+                # 调整到 256x256 (Windows 建议)
+                img = img.resize((256, 256), Image.Resampling.LANCZOS)
+                photo = ImageTk.PhotoImage(img)
+                self.dialog.wm_iconphoto(False, photo)
+                # 保持引用
+                self.dialog._icon_photo = photo
         except Exception as e:
             print(f"关于窗口设置图标失败: {e}")
     

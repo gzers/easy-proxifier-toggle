@@ -5,12 +5,14 @@
 """
 import customtkinter as ctk
 
+from ..config import manager as config_manager
+
 # ============================================================================
 # 主题配置
 # ============================================================================
 
-# 设置默认外观模式：dark, light, system
-DEFAULT_APPEARANCE_MODE = "dark"
+# 设置默认外观模式：从配置加载 ("dark", "light", "system")
+DEFAULT_APPEARANCE_MODE = config_manager.get_appearance_mode()
 
 # 设置默认颜色主题：blue, green, dark-blue
 DEFAULT_COLOR_THEME = "blue"
@@ -229,20 +231,24 @@ def get_current_mode():
     return ctk.get_appearance_mode()
 
 
-def set_appearance_mode(mode: str):
-    """设置外观模式
+def toggle_appearance_mode(mode=None):
+    """切换或设置外观模式，并持久化到配置
     
     Args:
-        mode: "dark", "light", 或 "system"
+        mode: 要设置的模式 ("light", "dark", "system")。如果为 None，则在 light/dark 之间切换。
     """
-    ctk.set_appearance_mode(mode)
-
-
-def toggle_appearance_mode():
-    """切换外观模式（深色/浅色）"""
-    current = get_current_mode()
-    new_mode = "light" if current == "Dark" else "dark"
-    set_appearance_mode(new_mode)
+    if mode is None:
+        # 传统切换逻辑 (双态切换)
+        current = ctk.get_appearance_mode().lower()
+        new_mode = "dark" if current == "light" else "light"
+    else:
+        new_mode = mode.lower()
+        
+    ctk.set_appearance_mode(new_mode)
+    
+    # 持久化到配置
+    config_manager.update_config(appearance_mode=new_mode)
+    
     return new_mode
 
 

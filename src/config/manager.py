@@ -9,7 +9,8 @@ DEFAULT_CONFIG = {
     "proxifier_exe_path": r"D:\Software\Common\Proxifier\Proxifier.exe",
     "service_name": "proxifierdrv",
     "auto_start": False,  # 是否开机启动
-    "start_minimized": True  # 启动时是否最小化（不最小化则打开设置界面）
+    "start_minimized": True,  # 启动时是否最小化（不最小化则打开设置界面）
+    "appearance_mode": "system"  # 主题模式: "light", "dark", "system"
 }
 
 # 获取项目根目录
@@ -82,7 +83,7 @@ def get_service_name():
     return config.get("service_name", DEFAULT_CONFIG["service_name"])
 
 
-def update_config(proxifier_exe_path=None, service_name=None, auto_start=None, start_minimized=None):
+def update_config(proxifier_exe_path=None, service_name=None, auto_start=None, start_minimized=None, appearance_mode=None):
     """更新配置"""
     config = load_config()
     
@@ -97,6 +98,9 @@ def update_config(proxifier_exe_path=None, service_name=None, auto_start=None, s
     
     if start_minimized is not None:
         config["start_minimized"] = start_minimized
+        
+    if appearance_mode is not None:
+        config["appearance_mode"] = appearance_mode
     
     return save_config(config)
 
@@ -111,3 +115,9 @@ def get_start_minimized():
     """获取启动时是否最小化"""
     config = load_config()
     return config.get("start_minimized", DEFAULT_CONFIG["start_minimized"])
+
+
+def get_appearance_mode():
+    """获取主题模式"""
+    config = load_config()
+    return config.get("appearance_mode", DEFAULT_CONFIG["appearance_mode"])

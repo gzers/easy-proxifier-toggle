@@ -55,11 +55,25 @@ def main():
 
     # 为根窗口设置图标（这通常决定了任务栏显示的图标）
     try:
-        icon_path = config_manager.ASSETS_DIR / "icon.ico"
-        if icon_path.exists():
-            root.iconbitmap(str(icon_path))
-    except Exception:
-        pass
+        from PIL import Image, ImageTk
+        icon_path_ico = config_manager.ASSETS_DIR / "icon.ico"
+        icon_path_png = config_manager.ASSETS_DIR / "icon.png"
+        
+        # 1. 设置标准 iconbitmap (用于窗口边框等)
+        if icon_path_ico.exists():
+            root.iconbitmap(str(icon_path_ico))
+            
+        # 2. 设置高分辨率 wm_iconphoto (用于任务栏和 Alt-Tab，显著提升清晰度)
+        if icon_path_png.exists():
+            img = Image.open(icon_path_png)
+            # 保持比例调整到 256x256 (Windows 支持的最高质量)
+            img = img.resize((256, 256), Image.Resampling.LANCZOS)
+            photo = ImageTk.PhotoImage(img)
+            root.wm_iconphoto(True, photo)
+            # 必须保持引用，防止垃圾回收
+            root._icon_photo = photo
+    except Exception as e:
+        print(f"设置主程序图标失败: {e}")
 
     # 2. 初始化持久化的设置窗口对象
     app = SettingsWindow(root)
