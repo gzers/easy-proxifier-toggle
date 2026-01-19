@@ -198,10 +198,13 @@ easy-proxifier-toggler/
 │   │   ├── __init__.py
 │   │   ├── app.py           # 应用程序主类
 │   │   ├── ctk_styles.py    # CustomTkinter 样式定义
-│   │   ├── dpi_fix.py       # DPI 修复工具
 │   │   ├── tray_icon.py     # 托盘图标
-│   │   ├── settings.py      # 设置窗口
-│   │   └── widgets/         # GUI 组件
+│   │   ├── settings.py      # 设置界面 (业务主窗口)
+│   │   ├── common/          # 公共 UI 组件 (非业务相关)
+│   │   │   ├── __init__.py
+│   │   │   ├── styled_window.py   # 样式窗口基类
+│   │   │   └── dpi_fix.py         # DPI 修复工具
+│   │   └── widgets/         # 业务组件 (与本程序逻辑相关)
 │   │       ├── __init__.py
 │   │       ├── header_frame.py    # 头部框架
 │   │       ├── status_frame.py    # 状态显示框架

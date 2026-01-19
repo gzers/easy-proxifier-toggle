@@ -11,6 +11,7 @@ from .widgets.footer_frame import FooterFrame
 from .widgets.header_frame import HeaderFrame
 from .widgets.action_frame import ActionFrame
 from .widgets.about_dialog import AboutDialog
+from .common.styled_window import StyledWindow
 from .ctk_styles import ButtonStyles, Fonts, Sizes, Colors, toggle_appearance_mode, StyledButton
 
 
@@ -52,16 +53,13 @@ class SettingsWindow:
             self.root = ctk.CTk()
             self.root.withdraw()
         
-        # 使用 CTkToplevel 创建窗口
-        self.window = ctk.CTkToplevel(self.root)
-        self.window.title("Easy-Proxifier-Toggler 主控面板")
-        
-        # 窗口布局与大小
-        self._center_window(640, 850)  # 稍微增加高度
-        self.window.resizable(False, False)
-        
-        # 设置图标
-        self.window.after(200, self._set_window_icon)
+        # 使用 StyledWindow 创建窗口
+        self.window = StyledWindow(
+            self.root, 
+            title="Easy-Proxifier-Toggler 主控面板",
+            width=640,
+            height=850
+        )
         
         # 加载初始配置
         self.initial_config = config_manager.load_config()
@@ -71,39 +69,7 @@ class SettingsWindow:
         # 拦截关闭事件
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
 
-    def _set_window_icon(self):
-        """设置窗口图标 - 使用高分辨率图像提升任务栏清晰度"""
-        try:
-            if not self.window or not self.window.winfo_exists():
-                return
-            
-            icon_path_ico = config_manager.ASSETS_DIR / "icon.ico"
-            icon_path_png = config_manager.ASSETS_DIR / "icon.png"
-            
-            # 1. 设置标准 iconbitmap (标题栏图标)
-            if icon_path_ico.exists():
-                self.window.iconbitmap(str(icon_path_ico))
-                
-            # 2. 设置高分辨率 wm_iconphoto (任务栏图标)
-            if icon_path_png.exists():
-                from PIL import Image, ImageTk
-                img = Image.open(icon_path_png)
-                # 调整到 256x256 确保视网膜屏幕下的极端清晰度
-                img = img.resize((256, 256), Image.Resampling.LANCZOS)
-                photo = ImageTk.PhotoImage(img)
-                self.window.wm_iconphoto(False, photo) # False 表示只作用于当前窗口
-                # 保持引用防止内存回收
-                self.window._icon_photo = photo
-        except Exception as e:
-            print(f"窗口设置图标失败: {e}")
-    
-    def _center_window(self, width, height):
-        """窗口居中"""
-        screen_width = self.window.winfo_screenwidth()
-        screen_height = self.window.winfo_screenheight()
-        x = (screen_width // 2) - (width // 2)
-        y = (screen_height // 2) - (height // 2)
-        self.window.geometry(f"{width}x{height}+{x}+{y}")
+    # 原本的 _set_window_icon 和 _center_window 已由 StyledWindow 基类处理
     
     def _create_layout(self):
         """组装各个模块化组件 - 保持代码可读性与布局稳定性"""

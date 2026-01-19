@@ -3,6 +3,7 @@ import customtkinter as ctk
 import webbrowser
 from ...config import manager as config_manager
 from ..ctk_styles import ButtonStyles, Fonts, Sizes, Colors
+from ..common.styled_window import StyledWindow
 
 
 class AboutDialog:
@@ -13,58 +14,21 @@ class AboutDialog:
         self.author = author
         self.github_url = github_url
         
-        # 创建对话框窗口
-        self.dialog = ctk.CTkToplevel(parent)
-        self.dialog.title("关于软件")
-        self.dialog.geometry("320x240")
-        self.dialog.resizable(False, False)
-        
-        # 居中显示
-        self._center_window()
+        # 使用 StyledWindow 创建对话框窗口
+        self.dialog = StyledWindow(
+            parent,
+            title="关于软件",
+            width=320,
+            height=420
+        )
         
         # 设置为模态对话框
         self.dialog.transient(parent)
         self.dialog.grab_set()
-        
-        # 设置图标 - 参考主界面，使用延迟加载以确保成功
-        self.dialog.after(200, self._set_window_icon)
             
         self._setup_ui()
 
-    def _set_window_icon(self):
-        """设置窗口图标 - 使用高分辨率图像提升清晰度"""
-        try:
-            if not self.dialog or not self.dialog.winfo_exists():
-                return
-            
-            icon_path_ico = config_manager.ASSETS_DIR / "icon.ico"
-            icon_path_png = config_manager.ASSETS_DIR / "icon.png"
-            
-            # 1. 设置标准 iconbitmap
-            if icon_path_ico.exists():
-                self.dialog.iconbitmap(str(icon_path_ico))
-                
-            # 2. 设置高分辨率 wm_iconphoto (关键任务栏清晰度)
-            if icon_path_png.exists():
-                from PIL import Image, ImageTk
-                img = Image.open(icon_path_png)
-                # 调整到 256x256 (Windows 建议)
-                img = img.resize((256, 256), Image.Resampling.LANCZOS)
-                photo = ImageTk.PhotoImage(img)
-                self.dialog.wm_iconphoto(False, photo)
-                # 保持引用
-                self.dialog._icon_photo = photo
-        except Exception as e:
-            print(f"关于窗口设置图标失败: {e}")
-    
-    def _center_window(self):
-        """窗口居中"""
-        self.dialog.update_idletasks()
-        width = self.dialog.winfo_width()
-        height = self.dialog.winfo_height()
-        x = (self.dialog.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.dialog.winfo_screenheight() // 2) - (height // 2)
-        self.dialog.geometry(f"{width}x{height}+{x}+{y}")
+    # 原本的 _set_window_icon 和 _center_window 已由 StyledWindow 基类处理
     
     def _setup_ui(self):
         """设置 UI 布局"""

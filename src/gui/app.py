@@ -10,7 +10,7 @@ from ..config import manager as config_manager
 from ..gui.settings import SettingsWindow
 from ..gui.tray_icon import setup_tray_async
 from ..gui.ctk_styles import DEFAULT_APPEARANCE_MODE, DEFAULT_COLOR_THEME
-from ..gui.dpi_fix import enable_dpi_awareness
+from ..gui.common.dpi_fix import enable_dpi_awareness
 from ..utils.win_utils import setup_app_id
 
 class ProxifierApp:
