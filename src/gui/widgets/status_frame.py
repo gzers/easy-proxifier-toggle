@@ -3,6 +3,7 @@ import customtkinter as ctk
 import threading
 import time
 from ...core import service, process
+from ...core.constants import ServiceStatus, UIStrings
 from ..ctk_styles import Fonts, Sizes, Colors, get_status_colors
 
 
@@ -39,7 +40,7 @@ class StatusFrame(ctk.CTkFrame):
         # 标题 - 更轻量的样式
         title_label = ctk.CTkLabel(
             container,
-            text="当前状态",
+            text=UIStrings.CURRENT_STATUS,
             font=("Microsoft YaHei UI", 14, "normal"),
             text_color=(Colors.TEXT_SECONDARY_LIGHT, Colors.TEXT_SECONDARY_DARK),
             anchor="w"
@@ -52,7 +53,7 @@ class StatusFrame(ctk.CTkFrame):
         status_row.pack_propagate(False)  # 防止子组件撑大容器
         
         # 左侧：驱动服务状态（横向布局）
-        self._create_status_inline(status_row, "驱动服务", "service", side="left")
+        self._create_status_inline(status_row, UIStrings.SERVICE_NAME, "service", side="left")
         
         # 中间竖线分隔
         separator_line = ctk.CTkFrame(
@@ -63,7 +64,7 @@ class StatusFrame(ctk.CTkFrame):
         separator_line.pack(side="left", fill="y", padx=Sizes.PADDING_LARGE, pady=4)
         
         # 右侧：进程状态（横向布局）
-        self._create_status_inline(status_row, "进程状态", "process", side="left")
+        self._create_status_inline(status_row, UIStrings.PROCESS_STATUS, "process", side="left")
         
         # 分割线
         separator = ctk.CTkFrame(
@@ -77,7 +78,7 @@ class StatusFrame(ctk.CTkFrame):
         from ..ctk_styles import StyledButton
         self.toggle_btn = StyledButton(
             container,
-            text="⚡  切换服务状态",
+            text=UIStrings.BTN_TOGGLE_STATE,
             command=self._handle_toggle,
             style="primary",
             width=180,
@@ -168,12 +169,12 @@ class StatusFrame(ctk.CTkFrame):
         updating = False
         dots = "." * (self.loading_dots % 4)
         
-        if self.last_status["service"] == "LOADING":
-            self.service_status_label.configure(text=f"正在获取{dots}")
+        if self.last_status["service"] == ServiceStatus.LOADING.value:
+            self.service_status_label.configure(text=f"{UIStrings.get_status(ServiceStatus.LOADING)}{dots}")
             updating = True
         
-        if self.last_status["process"] == "LOADING":
-            self.process_status_label.configure(text=f"正在获取{dots}")
+        if self.last_status["process"] == ServiceStatus.LOADING.value:
+            self.process_status_label.configure(text=f"{UIStrings.get_status(ServiceStatus.LOADING)}{dots}")
             updating = True
         
         if updating:
@@ -187,11 +188,11 @@ class StatusFrame(ctk.CTkFrame):
         p_path = self.config.get("proxifier_exe_path", "")
         
         # 禁用按钮并显示处理中状态
-        self.toggle_btn.configure(state="disabled", text="⏳  正在处理...")
+        self.toggle_btn.configure(state="disabled", text=UIStrings.BTN_PROCESSING)
         
         def run_toggle():
             try:
-                if "RUNNING" in curr_s or "运行中" in curr_s:
+                if any(x in curr_s for x in ["RUNNING", "运行中", UIStrings.get_status(ServiceStatus.RUNNING)]):
                     # 关闭流程
                     process.kill_proxifier(p_path)
                     time.sleep(0.5)
@@ -206,7 +207,7 @@ class StatusFrame(ctk.CTkFrame):
             # 恢复按钮状态
             self.after(500, lambda: self.toggle_btn.configure(
                 state="normal",
-                text="⚡  切换服务状态"
+                text=UIStrings.BTN_TOGGLE_STATE
             ))
         
         threading.Thread(target=run_toggle, daemon=True).start()
@@ -254,32 +255,32 @@ class StatusFrame(ctk.CTkFrame):
                 pass
         
         # 更新服务状态 - 语义化设计
-        if s_status == "RUNNING":
+        if s_status == ServiceStatus.RUNNING.value:
             # 成功状态：绿色 + ✓
             self.service_indicator.configure(text_color=Colors.SUCCESS)
             self.service_status_label.configure(
-                text="✓  RUNNING",
+                text=f"✓  {UIStrings.get_status(ServiceStatus.RUNNING)}",
                 text_color=Colors.SUCCESS
             )
             self.service_badge.configure(
                 fg_color=self._get_subtle_bg(Colors.SUCCESS)
             )
-        elif s_status == "STOPPED":
+        elif s_status == ServiceStatus.STOPPED.value:
             # 停止状态：灰色 + ⏸
             gray_color = Colors.TEXT_SECONDARY_DARK
             self.service_indicator.configure(text_color=gray_color)
             self.service_status_label.configure(
-                text="⏸  STOPPED",
+                text=f"⏸  {UIStrings.get_status(ServiceStatus.STOPPED)}",
                 text_color=gray_color
             )
             self.service_badge.configure(
                 fg_color=self._get_subtle_bg(gray_color)
             )
-        elif s_status == "NOT_INSTALLED":
+        elif s_status == ServiceStatus.NOT_INSTALLED.value:
             # 警告状态：橙色 + ⚠
             self.service_indicator.configure(text_color=Colors.WARNING)
             self.service_status_label.configure(
-                text="⚠  未安装",
+                text=f"⚠  {UIStrings.get_status(ServiceStatus.NOT_INSTALLED)}",
                 text_color=Colors.WARNING
             )
             self.service_badge.configure(
@@ -290,7 +291,7 @@ class StatusFrame(ctk.CTkFrame):
             neutral_color = Colors.TEXT_SECONDARY_DARK
             self.service_indicator.configure(text_color=neutral_color)
             self.service_status_label.configure(
-                text=f"●  {s_status}",
+                text=f"●  {UIStrings.get_status(s_status)}",
                 text_color=neutral_color
             )
             self.service_badge.configure(
@@ -302,7 +303,7 @@ class StatusFrame(ctk.CTkFrame):
             # 运行中：绿色 + ✓
             self.process_indicator.configure(text_color=Colors.SUCCESS)
             self.process_status_label.configure(
-                text="✓  运行中",
+                text=f"✓  {UIStrings.get_status(ServiceStatus.RUNNING)}",
                 text_color=Colors.SUCCESS
             )
             self.process_badge.configure(
@@ -313,7 +314,7 @@ class StatusFrame(ctk.CTkFrame):
             gray_color = Colors.TEXT_SECONDARY_DARK
             self.process_indicator.configure(text_color=gray_color)
             self.process_status_label.configure(
-                text="⏸  已停止",
+                text=f"⏸  {UIStrings.get_status(ServiceStatus.STOPPED)}",
                 text_color=gray_color
             )
             self.process_badge.configure(

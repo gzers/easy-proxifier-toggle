@@ -7,6 +7,7 @@ from ..core import service, process
 from ..config import manager as config_manager
 from ..utils import startup
 from .settings import open_settings
+from ..core.constants import ServiceStatus, UIStrings
 
 
 # 全局引用与缓存
@@ -85,19 +86,19 @@ def toggle_proxifier_state(icon, item):
         process.kill_proxifier(proxifier_exe_path)
         # 停服务
         if service.stop_service(service_name):
-            icon.notify("Proxifier 已关闭。", "状态通知")
+            icon.notify("Proxifier " + UIStrings.STATUS_MAP[ServiceStatus.STOPPED], UIStrings.TRAY_STATUS)
         else:
-            icon.notify("Proxifier 关闭可能未完成。", "警告")
+            icon.notify(UIStrings.NOTIFY_ERROR, "警告")
             
-    elif current_status == "STOPPED" or current_status == "NOT_INSTALLED":
+    elif current_status == ServiceStatus.STOPPED.value or current_status == ServiceStatus.NOT_INSTALLED.value:
         # 开启逻辑
-        icon.notify("正在开启 Proxifier...", "切换状态")
+        icon.notify(UIStrings.NOTIFY_SWITCHING, UIStrings.TRAY_TOGGLE)
         
         # 启服务
         if service.start_service(service_name):
             # 启动软件
             if process.start_proxifier(proxifier_exe_path):
-                icon.notify("Proxifier 已开启。", "状态通知")
+                icon.notify("Proxifier " + UIStrings.STATUS_MAP[ServiceStatus.RUNNING], UIStrings.TRAY_STATUS)
             else:
                 icon.notify("启动 Proxifier 失败！", "错误")
         else:
@@ -117,8 +118,8 @@ def show_status(icon, item):
     status = service.get_service_status(service_name)
     process_running = process.is_proxifier_running(proxifier_exe_path)
     
-    status_text = f"服务状态: {status}\n进程运行: {'是' if process_running else '否'}"
-    icon.notify(status_text, "Proxifier 状态")
+    status_text = f"{UIStrings.SERVICE_NAME}: {UIStrings.get_status(status)}\n{UIStrings.PROCESS_STATUS}: {'是' if process_running else '否'}"
+    icon.notify(status_text, UIStrings.TRAY_STATUS)
 
 
 def open_settings_window(icon, item):
@@ -186,15 +187,15 @@ def setup_icon(app_instance=None):
     image = create_image(active=True)
 
     menu = pystray.Menu(
-        pystray.MenuItem("切换 Proxifier", toggle_proxifier_state, default=True),
-        pystray.MenuItem("查看状态", show_status),
+        pystray.MenuItem(UIStrings.TRAY_TOGGLE, toggle_proxifier_state, default=True),
+        pystray.MenuItem(UIStrings.TRAY_STATUS, show_status),
         pystray.Menu.SEPARATOR,
-        pystray.MenuItem("主界面", open_settings_window),
+        pystray.MenuItem(UIStrings.TRAY_MAIN_UI, open_settings_window),
         pystray.Menu.SEPARATOR,
-        pystray.MenuItem("开机自启动", toggle_auto_start, checked=check_auto_start),
-        pystray.MenuItem("最小化启动", toggle_minimize_on_startup, checked=check_minimize_on_startup),
+        pystray.MenuItem(UIStrings.TRAY_AUTO_START, toggle_auto_start, checked=check_auto_start),
+        pystray.MenuItem(UIStrings.TRAY_MINIMIZED, toggle_minimize_on_startup, checked=check_minimize_on_startup),
         pystray.Menu.SEPARATOR,
-        pystray.MenuItem("退出", quit_app)
+        pystray.MenuItem(UIStrings.TRAY_QUIT, quit_app)
     )
 
     from .. import __version__
