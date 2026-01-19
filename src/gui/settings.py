@@ -9,8 +9,9 @@ from .widgets.config_frame import ConfigFrame
 from .widgets.startup_frame import StartupFrame
 from .widgets.footer_frame import FooterFrame
 from .widgets.header_frame import HeaderFrame
+from .widgets.action_frame import ActionFrame
 from .widgets.about_dialog import AboutDialog
-from .ctk_styles import ButtonStyles, Fonts, Sizes, Colors, toggle_appearance_mode
+from .ctk_styles import ButtonStyles, Fonts, Sizes, Colors, toggle_appearance_mode, StyledButton
 
 
 class SettingsWindow:
@@ -90,85 +91,29 @@ class SettingsWindow:
         self.window.geometry(f"{width}x{height}+{x}+{y}")
     
     def _create_layout(self):
-        """组装各个模块化组件"""
-        from .ctk_styles import StyledButton
+        """组装各个模块化组件 - 按照从上到下的视觉顺序"""
         pad_x = Sizes.WINDOW_PAD_X
         
-        # 1. 页脚组件（版本/作者）- 放在底部
-        from .. import __version__, __author__
-        self.footer = FooterFrame(self.window, __version__, __author__)
-        self.footer.pack(side="bottom", fill="x", padx=pad_x, pady=(Sizes.PADDING_SMALL, Sizes.WINDOW_PAD_Y))
-        
-        # 2. 底部操作按钮区域 - 放在底部
-        btn_frame = ctk.CTkFrame(self.window, fg_color="transparent")
-        btn_frame.pack(side="bottom", fill="x", padx=pad_x, pady=(Sizes.PADDING_SMALL, Sizes.PADDING))
-        
-        # 左侧次要按钮
-        secondary_btn_frame = ctk.CTkFrame(btn_frame, fg_color="transparent")
-        secondary_btn_frame.pack(side="left")
-        
-        # 关于按钮
-        about_btn = StyledButton(
-            secondary_btn_frame,
-            text="ℹ️ 关于软件",
-            command=self._handle_about,
-            style="secondary",
-            width=Sizes.BUTTON_WIDTH_SMALL
-        )
-        about_btn.pack(side="left", padx=(0, Sizes.PADDING_SMALL))
-        
-        # 主题切换按钮
-        theme_btn = StyledButton(
-            secondary_btn_frame,
-            text="🌓 切换主题",
-            command=self._toggle_theme,
-            style="secondary",
-            width=Sizes.BUTTON_WIDTH_SMALL
-        )
-        theme_btn.pack(side="left")
-        
-        # 右侧主要按钮
-        # 保存按钮
-        save_btn = StyledButton(
-            btn_frame,
-            text="💾 保存修改",
-            command=self._handle_save,
-            style="primary",
-            width=Sizes.BUTTON_WIDTH
-        )
-        save_btn.pack(side="right")
-        
-        # 重置按钮
-        reset_btn = StyledButton(
-            btn_frame,
-            text="↩️ 撤销更改",
-            command=self._handle_reset,
-            style="secondary",
-            width=Sizes.BUTTON_WIDTH_SMALL
-        )
-        reset_btn.pack(side="right", padx=(0, Sizes.PADDING_SMALL))
-        
-        # 3. 顶部标题区域 - 放在顶部
+        # 1. 顶部标题区域
         logo_path = config_manager.ASSETS_DIR / "gzgg-logo.gif"
         self.header = HeaderFrame(
             self.window,
             title="Easy-Proxifier-Toggler",
             logo_path=logo_path
         )
-        self.header.pack(fill="x", padx=pad_x, pady=(Sizes.WINDOW_PAD_Y, Sizes.PADDING))
+        self.header.pack(side="top", fill="x", padx=pad_x, pady=(Sizes.WINDOW_PAD_Y, Sizes.PADDING))
         
-        # 4. 中间可滚动卡片容器
+        # 2. 中间可滚动卡片容器
         scroll_container = ctk.CTkScrollableFrame(
             self.window, 
             fg_color="transparent",
             scrollbar_button_color=(Colors.BORDER_LIGHT, Colors.BORDER_DARK),
             scrollbar_button_hover_color=Colors.PRIMARY
         )
-        scroll_container.pack(fill="both", expand=True, padx=pad_x - 5, pady=0)
+        scroll_container.pack(side="top", fill="both", expand=True, padx=pad_x - 5, pady=0)
         
-        # 统一内部卡片边距
+        # 内部卡片
         card_pad_x = 5
-        
         self.status_panel = StatusFrame(scroll_container, self.initial_config)
         self.status_panel.pack(fill="x", padx=card_pad_x, pady=Sizes.PADDING_SMALL)
         
@@ -177,6 +122,21 @@ class SettingsWindow:
         
         self.startup_panel = StartupFrame(scroll_container, self.initial_config)
         self.startup_panel.pack(fill="x", padx=card_pad_x, pady=Sizes.PADDING_SMALL)
+        
+        # 3. 底部操作按钮区域
+        self.action_panel = ActionFrame(
+            self.window,
+            on_save=self._handle_save,
+            on_reset=self._handle_reset,
+            on_about=self._handle_about,
+            on_theme=self._toggle_theme
+        )
+        self.action_panel.pack(side="top", fill="x", padx=pad_x, pady=(Sizes.PADDING_SMALL, Sizes.PADDING))
+        
+        # 4. 页脚组件（版本/作者）
+        from .. import __version__, __author__
+        self.footer = FooterFrame(self.window, __version__, __author__)
+        self.footer.pack(side="top", fill="x", padx=pad_x, pady=(Sizes.PADDING_SMALL, Sizes.WINDOW_PAD_Y))
 
     
     def _toggle_theme(self):
