@@ -11,7 +11,8 @@
 旨在解决与其他对进程或驱动环境敏感的软件/游戏之间的检测冲突
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
-[![PySide6](https://img.shields.io/badge/PySide6-6.6+-green.svg)](https://pypi.org/project/PySide6/)
+[![CustomTkinter](https://img.shields.io/badge/CustomTkinter-5.2+-green.svg)](https://pypi.org/project/customtkinter/)
+[![PyStray](https://img.shields.io/badge/PyStray-0.19+-orange.svg)](https://pypi.org/project/pystray/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
